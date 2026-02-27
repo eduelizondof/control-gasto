@@ -25,6 +25,7 @@
             display: none !important;
         }
     </style>
+    @include('layouts.seo')
 </head>
 
 <body class="font-sans antialiased">
@@ -74,6 +75,7 @@
     @include('layouts.navigation')
 
     @livewireScripts
+    @include('layouts.pwa')
 </body>
 
 </html>

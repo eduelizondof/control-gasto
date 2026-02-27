@@ -136,6 +136,7 @@
             transform: translateY(-1px) !important;
         }
     </style>
+    @include('layouts.seo')
 </head>
 
 <body class="antialiased">
@@ -183,6 +184,7 @@
             </a>
         </div>
     </div>
+    @include('layouts.pwa')
 </body>
 
 </html>

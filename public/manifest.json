@@ -1,0 +1,22 @@
+{
+    "name": "ConectaTusFinanzas",
+    "short_name": "Conecta",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#f9fafb",
+    "theme_color": "#4f46e5",
+    "description": "Control de gastos e ingresos - Conecta tus finanzas.",
+    "icons": [
+        {
+            "src": "https://conectivaits.com/images/logo/favicon/favicon-96x96.png",
+            "sizes": "96x96",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "https://conectivaits.com/images/logo/favicon/apple-touch-icon.png",
+            "sizes": "180x180",
+            "type": "image/png"
+        }
+    ]
+}
