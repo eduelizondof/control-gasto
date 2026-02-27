@@ -17,6 +17,37 @@ class BudgetController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
+        // Calculate actual spending per concept and category for this month
+        $expensesByConcept = $group->transactions()
+            ->confirmed()
+            ->thisMonth()
+            ->ofType('expense')
+            ->whereNotNull('concept_id')
+            ->selectRaw('concept_id, SUM(amount) as total')
+            ->groupBy('concept_id')
+            ->pluck('total', 'concept_id');
+
+        $expensesByCategory = $group->transactions()
+            ->confirmed()
+            ->thisMonth()
+            ->ofType('expense')
+            ->selectRaw('category_id, SUM(amount) as total')
+            ->groupBy('category_id')
+            ->pluck('total', 'category_id');
+
+        // Attach actual_spent to each budget item
+        foreach ($budgets as $budget) {
+            foreach ($budget->items as $item) {
+                if ($item->concept_id && $expensesByConcept->has($item->concept_id)) {
+                    $item->actual_spent = (float) $expensesByConcept->get($item->concept_id);
+                } elseif (!$item->concept_id) {
+                    $item->actual_spent = (float) ($expensesByCategory->get($item->category_id, 0));
+                } else {
+                    $item->actual_spent = 0;
+                }
+            }
+        }
+
         return view('budgets.index', compact('group', 'budgets'));
     }
 

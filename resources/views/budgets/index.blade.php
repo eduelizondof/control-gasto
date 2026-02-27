@@ -45,13 +45,15 @@
                     {{-- Items del presupuesto --}}
                     @if ($budget->items->isNotEmpty())
                         {{-- Encabezado solo visible en desktop --}}
-                        <div class="hidden lg:grid lg:grid-cols-12 gap-2 px-6 py-3 bg-gray-50 text-xs font-semibold text-gray-500 uppercase">
-                            <div class="col-span-3">Concepto</div>
-                            <div class="col-span-2">Categoría</div>
-                            <div class="col-span-2 text-right">Monto</div>
-                            <div class="col-span-2">Frecuencia</div>
-                            <div class="col-span-2 text-right">Mensual</div>
-                            <div class="col-span-1 text-center">Tipo</div>
+                        <div class="hidden lg:grid lg:grid-cols-16 gap-2 px-6 py-3 bg-gray-50 text-xs font-semibold text-gray-500 uppercase" style="grid-template-columns: 2.5fr 1.5fr 1.5fr 1.5fr 1.5fr 1.5fr 1.5fr 1fr;">
+                            <div>Concepto</div>
+                            <div>Categoría</div>
+                            <div class="text-right">Monto</div>
+                            <div>Frecuencia</div>
+                            <div class="text-right">Mensual</div>
+                            <div class="text-right">Gastado</div>
+                            <div class="text-right">Diferencia</div>
+                            <div class="text-center">Tipo</div>
                         </div>
 
                         <div class="divide-y divide-gray-50">
@@ -61,20 +63,28 @@
                                 @endphp
 
                                 {{-- Desktop row (lg+) --}}
-                                <div class="hidden lg:grid lg:grid-cols-12 gap-2 items-center px-6 py-3 hover:bg-gray-50/50 text-sm">
-                                    <div class="col-span-3 font-medium text-gray-800 truncate" title="{{ $conceptName }}">
+                                @php
+                                    $spent = $item->actual_spent ?? 0;
+                                    $itemDiff = $item->monthly_amount - $spent;
+                                @endphp
+                                <div class="hidden lg:grid gap-2 items-center px-6 py-3 hover:bg-gray-50/50 text-sm" style="grid-template-columns: 2.5fr 1.5fr 1.5fr 1.5fr 1.5fr 1.5fr 1.5fr 1fr;">
+                                    <div class="font-medium text-gray-800 truncate" title="{{ $conceptName }}">
                                         {{ $conceptName }}
                                     </div>
-                                    <div class="col-span-2">
+                                    <div>
                                         <span class="inline-flex items-center gap-1 text-xs" style="color: {{ $item->category->color }}">
                                             <span class="w-2 h-2 rounded-full" style="background-color: {{ $item->category->color }}"></span>
                                             {{ $item->category->name }}
                                         </span>
                                     </div>
-                                    <div class="col-span-2 text-right text-gray-600">${{ number_format($item->estimated_amount, 2) }}</div>
-                                    <div class="col-span-2 text-gray-500">{{ $freqLabels[$item->frequency] ?? $item->frequency }}</div>
-                                    <div class="col-span-2 text-right font-bold text-gray-800">${{ number_format($item->monthly_amount, 2) }}</div>
-                                    <div class="col-span-1 text-center">
+                                    <div class="text-right text-gray-600">${{ number_format($item->estimated_amount, 2) }}</div>
+                                    <div class="text-gray-500">{{ $freqLabels[$item->frequency] ?? $item->frequency }}</div>
+                                    <div class="text-right font-bold text-gray-800">${{ number_format($item->monthly_amount, 2) }}</div>
+                                    <div class="text-right font-semibold {{ $spent > 0 ? 'text-gray-800' : 'text-gray-300' }}">${{ number_format($spent, 2) }}</div>
+                                    <div class="text-right font-bold {{ $itemDiff >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">
+                                        {{ $itemDiff >= 0 ? '$' . number_format($itemDiff, 2) : '-$' . number_format(abs($itemDiff), 2) }}
+                                    </div>
+                                    <div class="text-center">
                                         <span class="px-2 py-0.5 rounded text-xs {{ $item->is_fixed ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700' }}">
                                             {{ $item->is_fixed ? 'Fijo' : 'Variable' }}
                                         </span>
@@ -98,7 +108,7 @@
                                             <p class="text-xs text-gray-400">/mes</p>
                                         </div>
                                     </div>
-                                    <div class="flex items-center gap-2 flex-wrap text-xs text-gray-500">
+                                    <div class="flex items-center gap-2 flex-wrap text-xs text-gray-500 mb-2">
                                         @if ($item->estimated_amount != $item->monthly_amount)
                                             <span class="bg-gray-100 px-2 py-0.5 rounded">${{ number_format($item->estimated_amount, 2) }}
                                                 · {{ $freqLabels[$item->frequency] ?? $item->frequency }}</span>
@@ -107,6 +117,14 @@
                                         @endif
                                         <span class="px-2 py-0.5 rounded {{ $item->is_fixed ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700' }}">
                                             {{ $item->is_fixed ? 'Fijo' : 'Variable' }}
+                                        </span>
+                                    </div>
+                                    {{-- Spent vs Budget (mobile) --}}
+                                    @php $spent = $item->actual_spent ?? 0; $itemDiff = $item->monthly_amount - $spent; @endphp
+                                    <div class="flex items-center justify-between text-xs border-t border-gray-50 pt-2">
+                                        <span class="text-gray-500">Gastado: <span class="font-semibold text-gray-700">${{ number_format($spent, 2) }}</span></span>
+                                        <span class="font-bold {{ $itemDiff >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">
+                                            {{ $itemDiff >= 0 ? 'Disp: $' . number_format($itemDiff, 2) : 'Exceso: $' . number_format(abs($itemDiff), 2) }}
                                         </span>
                                     </div>
                                 </div>

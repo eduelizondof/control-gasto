@@ -32,7 +32,10 @@
                         @if($group->description)
                             <p class="text-gray-500 text-sm mb-4">{{ $group->description }}</p>
                         @endif
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <a href="{{ route('groups.invite', $group) }}"
+                                class="text-emerald-600 text-sm font-medium hover:underline">Invitar</a>
+                            <span class="text-gray-300">·</span>
                             <a href="{{ route('groups.edit', $group) }}"
                                 class="text-indigo-600 text-sm font-medium hover:underline">Editar</a>
                             <span class="text-gray-300">·</span>

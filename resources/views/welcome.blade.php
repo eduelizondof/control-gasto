@@ -108,6 +108,19 @@
                 opacity: 0;
             }
         }
+
+        /* Mobile menu */
+        .mobile-menu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+            opacity: 0;
+        }
+
+        .mobile-menu.open {
+            max-height: 200px;
+            opacity: 1;
+        }
     </style>
 </head>
 
@@ -117,35 +130,61 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <a href="/" class="flex items-center gap-3">
-                    <div
-                        class="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-                            </path>
-                        </svg>
-                    </div>
-                    <span class="text-white font-bold text-xl tracking-tight">ConectaTusFinanzas</span>
+                    <img src="https://conectivaits.com/images/logo/logo-icono-blanco.png" alt="ConectaTusFinanzas"
+                        class="w-9 h-9 rounded-xl shadow-lg shadow-indigo-500/30 object-contain">
+                    <span class="text-white font-bold text-lg sm:text-xl tracking-tight">ConectaTusFinanzas</span>
                 </a>
 
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-3">
                     @auth
                         <a href="{{ route('dashboard') }}"
-                            class="text-indigo-300 hover:text-white transition font-medium text-sm">
-                            Mi Panel
+                            class="w-10 h-10 rounded-full bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center text-indigo-300 hover:bg-indigo-600/50 hover:text-white transition-all"
+                            title="Mi Panel">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
                         </a>
                     @else
-                        <a href="{{ route('login') }}"
-                            class="text-gray-300 hover:text-white transition font-medium text-sm">
-                            Iniciar Sesión
-                        </a>
-                        <a href="{{ route('register') }}"
-                            class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition shadow-lg shadow-indigo-600/30 hover:shadow-indigo-500/40">
-                            Crear Cuenta
-                        </a>
+                        <!-- Desktop buttons -->
+                        <div class="hidden sm:flex items-center gap-3">
+                            <a href="{{ route('login') }}"
+                                class="text-gray-300 hover:text-white transition font-medium text-sm">
+                                Iniciar Sesión
+                            </a>
+                            <a href="{{ route('register') }}"
+                                class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-xl font-semibold text-sm transition shadow-lg shadow-indigo-600/30 hover:shadow-indigo-500/40">
+                                Crear Cuenta
+                            </a>
+                        </div>
+                        <!-- Mobile hamburger -->
+                        <button id="mobile-menu-btn"
+                            class="sm:hidden w-10 h-10 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center text-gray-300 hover:text-white hover:bg-white/20 transition-all"
+                            aria-label="Menú">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 6h16M4 12h16M4 18h16"></path>
+                            </svg>
+                        </button>
                     @endauth
                 </div>
             </div>
+
+            <!-- Mobile menu dropdown -->
+            @guest
+                <div id="mobile-menu" class="mobile-menu sm:hidden border-t border-white/10">
+                    <div class="py-3 space-y-2">
+                        <a href="{{ route('login') }}"
+                            class="block w-full text-center text-gray-300 hover:text-white transition font-medium text-sm py-2.5 rounded-xl hover:bg-white/10">
+                            Iniciar Sesión
+                        </a>
+                        <a href="{{ route('register') }}"
+                            class="block w-full text-center bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-xl font-semibold text-sm transition shadow-lg shadow-indigo-600/30">
+                            Crear Cuenta
+                        </a>
+                    </div>
+                </div>
+            @endguest
         </div>
     </nav>
 
@@ -160,51 +199,52 @@
         <div class="particle" style="left: 40%; animation-delay: 1s; width: 6px; height: 6px;"></div>
         <div class="particle" style="left: 60%; animation-delay: 4s; width: 3px; height: 3px;"></div>
 
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20 relative z-10">
-            <div class="grid lg:grid-cols-2 gap-16 items-center">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 sm:pt-32 pb-16 sm:pb-20 relative z-10">
+            <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
                 <!-- Left -->
-                <div>
+                <div class="text-center lg:text-left">
                     <div
-                        class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 text-sm text-indigo-200 mb-8">
+                        class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 text-sm text-indigo-200 mb-6 sm:mb-8">
                         <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
                         Gestión financiera inteligente
                     </div>
 
-                    <h1 class="text-5xl sm:text-6xl lg:text-7xl font-black text-white leading-tight mb-6">
+                    <h1 class="text-4xl sm:text-5xl lg:text-7xl font-black text-white leading-tight mb-6">
                         Controla tus
                         <span class="gradient-text">finanzas</span>
                         en familia
                     </h1>
 
-                    <p class="text-xl text-indigo-200/80 mb-10 leading-relaxed max-w-xl">
+                    <p
+                        class="text-lg sm:text-xl text-indigo-200/80 mb-8 sm:mb-10 leading-relaxed max-w-xl mx-auto lg:mx-0">
                         Organiza ingresos, gastos, presupuestos y deudas de tu hogar en un solo lugar. Visualiza tu
                         panorama financiero y toma mejores decisiones.
                     </p>
 
-                    <div class="flex flex-wrap gap-4">
+                    <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
                         <a href="{{ route('register') }}"
-                            class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 shadow-xl shadow-indigo-600/30 hover:shadow-indigo-500/40 hover:-translate-y-0.5">
+                            class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white px-8 py-4 rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 shadow-xl shadow-indigo-600/30 hover:shadow-indigo-500/40 hover:-translate-y-0.5 text-center">
                             Comenzar Gratis
                         </a>
                         <a href="#features"
-                            class="glass-card text-white px-8 py-4 rounded-2xl font-semibold text-lg transition-all hover:bg-white/15">
+                            class="glass-card text-white px-8 py-4 rounded-2xl font-semibold text-base sm:text-lg transition-all hover:bg-white/15 text-center">
                             Ver Funciones →
                         </a>
                     </div>
 
                     <!-- Stats -->
-                    <div class="flex gap-10 mt-14">
+                    <div class="flex gap-8 sm:gap-10 mt-10 sm:mt-14 justify-center lg:justify-start">
                         <div>
-                            <div class="text-3xl font-black text-white">100%</div>
-                            <div class="text-indigo-300/70 text-sm mt-1">Privado y seguro</div>
+                            <div class="text-2xl sm:text-3xl font-black text-white">100%</div>
+                            <div class="text-indigo-300/70 text-xs sm:text-sm mt-1">Privado y seguro</div>
                         </div>
                         <div>
-                            <div class="text-3xl font-black text-white">∞</div>
-                            <div class="text-indigo-300/70 text-sm mt-1">Movimientos</div>
+                            <div class="text-2xl sm:text-3xl font-black text-white">∞</div>
+                            <div class="text-indigo-300/70 text-xs sm:text-sm mt-1">Movimientos</div>
                         </div>
                         <div>
-                            <div class="text-3xl font-black text-white">Fácil</div>
-                            <div class="text-indigo-300/70 text-sm mt-1">De usar</div>
+                            <div class="text-2xl sm:text-3xl font-black text-white">Fácil</div>
+                            <div class="text-indigo-300/70 text-xs sm:text-sm mt-1">De usar</div>
                         </div>
                     </div>
                 </div>
@@ -290,18 +330,19 @@
     </section>
 
     <!-- Features Section -->
-    <section id="features" class="py-24 bg-white relative">
+    <section id="features" class="py-16 sm:py-24 bg-white relative">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl sm:text-5xl font-black text-gray-900 mb-4">Todo lo que necesitas</h2>
-                <p class="text-xl text-gray-500 max-w-2xl mx-auto">Herramientas poderosas para el control total de las
+            <div class="text-center mb-12 sm:mb-16">
+                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 mb-4">Todo lo que necesitas</h2>
+                <p class="text-lg sm:text-xl text-gray-500 max-w-2xl mx-auto">Herramientas poderosas para el control
+                    total de las
                     finanzas de tu familia.</p>
             </div>
 
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                 <!-- Feature 1 -->
                 <div
-                    class="feature-card bg-gradient-to-br from-slate-50 to-indigo-50/50 rounded-2xl p-8 border border-gray-100">
+                    class="feature-card bg-gradient-to-br from-slate-50 to-indigo-50/50 rounded-2xl p-6 sm:p-8 border border-gray-100">
                     <div
                         class="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-indigo-500/25">
                         <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -317,7 +358,7 @@
 
                 <!-- Feature 2 -->
                 <div
-                    class="feature-card bg-gradient-to-br from-slate-50 to-emerald-50/50 rounded-2xl p-8 border border-gray-100">
+                    class="feature-card bg-gradient-to-br from-slate-50 to-emerald-50/50 rounded-2xl p-6 sm:p-8 border border-gray-100">
                     <div
                         class="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-emerald-500/25">
                         <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -333,7 +374,7 @@
 
                 <!-- Feature 3 -->
                 <div
-                    class="feature-card bg-gradient-to-br from-slate-50 to-rose-50/50 rounded-2xl p-8 border border-gray-100">
+                    class="feature-card bg-gradient-to-br from-slate-50 to-rose-50/50 rounded-2xl p-6 sm:p-8 border border-gray-100">
                     <div
                         class="w-14 h-14 bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-rose-500/25">
                         <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -348,7 +389,7 @@
 
                 <!-- Feature 4 -->
                 <div
-                    class="feature-card bg-gradient-to-br from-slate-50 to-amber-50/50 rounded-2xl p-8 border border-gray-100">
+                    class="feature-card bg-gradient-to-br from-slate-50 to-amber-50/50 rounded-2xl p-6 sm:p-8 border border-gray-100">
                     <div
                         class="w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-amber-500/25">
                         <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -364,7 +405,7 @@
 
                 <!-- Feature 5 -->
                 <div
-                    class="feature-card bg-gradient-to-br from-slate-50 to-cyan-50/50 rounded-2xl p-8 border border-gray-100">
+                    class="feature-card bg-gradient-to-br from-slate-50 to-cyan-50/50 rounded-2xl p-6 sm:p-8 border border-gray-100">
                     <div
                         class="w-14 h-14 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-cyan-500/25">
                         <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -380,7 +421,7 @@
 
                 <!-- Feature 6 -->
                 <div
-                    class="feature-card bg-gradient-to-br from-slate-50 to-violet-50/50 rounded-2xl p-8 border border-gray-100">
+                    class="feature-card bg-gradient-to-br from-slate-50 to-violet-50/50 rounded-2xl p-6 sm:p-8 border border-gray-100">
                     <div
                         class="w-14 h-14 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-violet-500/25">
                         <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -398,15 +439,16 @@
     </section>
 
     <!-- How it works -->
-    <section class="py-24 bg-gray-50">
+    <section class="py-16 sm:py-24 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl sm:text-5xl font-black text-gray-900 mb-4">¿Cómo funciona?</h2>
-                <p class="text-xl text-gray-500 max-w-2xl mx-auto">En 3 simples pasos tendrás el control total de tus
+            <div class="text-center mb-12 sm:mb-16">
+                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 mb-4">¿Cómo funciona?</h2>
+                <p class="text-lg sm:text-xl text-gray-500 max-w-2xl mx-auto">En 3 simples pasos tendrás el control
+                    total de tus
                     finanzas.</p>
             </div>
 
-            <div class="grid md:grid-cols-3 gap-8">
+            <div class="grid sm:grid-cols-3 gap-8">
                 <div class="text-center">
                     <div class="w-20 h-20 bg-indigo-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
                         <span class="text-4xl font-black text-indigo-600">1</span>
@@ -438,7 +480,7 @@
     </section>
 
     <!-- CTA Section -->
-    <section class="gradient-bg relative py-24 overflow-hidden">
+    <section class="gradient-bg relative py-16 sm:py-24 overflow-hidden">
         <div class="absolute inset-0">
             <div class="particle" style="left: 15%; animation-delay: 2s;"></div>
             <div class="particle" style="left: 55%; animation-delay: 5s;"></div>
@@ -446,16 +488,16 @@
         </div>
 
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-            <h2 class="text-4xl sm:text-5xl font-black text-white mb-6">
+            <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-6">
                 Toma el control de tu
                 <span class="gradient-text">dinero hoy</span>
             </h2>
-            <p class="text-xl text-indigo-200/80 mb-10 max-w-2xl mx-auto">
+            <p class="text-lg sm:text-xl text-indigo-200/80 mb-8 sm:mb-10 max-w-2xl mx-auto">
                 Deja de preocuparte por tus finanzas. ConectaTusFinanzas te da la claridad que necesitas para alcanzar
                 tus metas financieras.
             </p>
             <a href="{{ route('register') }}"
-                class="inline-flex items-center gap-2 bg-white text-indigo-700 px-10 py-4 rounded-2xl font-bold text-lg transition-all duration-300 shadow-xl hover:shadow-2xl hover:-translate-y-1">
+                class="inline-flex items-center gap-2 bg-white text-indigo-700 px-8 sm:px-10 py-4 rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 shadow-xl hover:shadow-2xl hover:-translate-y-1">
                 Crear Cuenta Gratis
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6">
@@ -466,25 +508,100 @@
     </section>
 
     <!-- Footer -->
-    <footer class="bg-slate-900 border-t border-white/10 py-12">
+    <footer class="bg-slate-900 border-t border-white/10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
-                <div class="flex items-center gap-3">
-                    <div
-                        class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
-                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-                            </path>
-                        </svg>
+            <!-- Main footer content -->
+            <div class="py-10 sm:py-12">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <!-- Brand -->
+                    <div class="sm:col-span-2 lg:col-span-1">
+                        <a href="/" class="flex items-center gap-3 mb-4">
+                            <img src="https://conectivaits.com/images/logo/logo-icono-blanco.png"
+                                alt="ConectaTusFinanzas" class="w-8 h-8 rounded-lg object-contain">
+                            <span class="text-white font-bold text-lg">ConectaTusFinanzas</span>
+                        </a>
+                        <p class="text-gray-400 text-sm leading-relaxed max-w-xs">
+                            Sistema inteligente de gestión de gastos personales y familiares.
+                        </p>
                     </div>
-                    <span class="text-white font-semibold">ConectaTusFinanzas</span>
+
+                    <!-- Links -->
+                    <div>
+                        <h4 class="text-white font-semibold text-sm uppercase tracking-wider mb-4">Producto</h4>
+                        <ul class="space-y-2.5">
+                            <li><a href="#features"
+                                    class="text-gray-400 hover:text-indigo-400 text-sm transition">Funciones</a></li>
+                            <li><a href="{{ route('register') }}"
+                                    class="text-gray-400 hover:text-indigo-400 text-sm transition">Crear Cuenta</a></li>
+                            <li><a href="{{ route('login') }}"
+                                    class="text-gray-400 hover:text-indigo-400 text-sm transition">Iniciar Sesión</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Legal -->
+                    <div>
+                        <h4 class="text-white font-semibold text-sm uppercase tracking-wider mb-4">Soporte</h4>
+                        <ul class="space-y-2.5">
+                            <li><a href="#" class="text-gray-400 hover:text-indigo-400 text-sm transition">Ayuda</a>
+                            </li>
+                            <li><a href="#" class="text-gray-400 hover:text-indigo-400 text-sm transition">Contacto</a>
+                            </li>
+                            <li><a href="#"
+                                    class="text-gray-400 hover:text-indigo-400 text-sm transition">Privacidad</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Powered by -->
+                    <div>
+                        <h4 class="text-white font-semibold text-sm uppercase tracking-wider mb-4">Desarrollado por</h4>
+                        <a href="https://conectivaits.com" target="_blank" rel="noopener"
+                            class="inline-flex items-center gap-2 text-indigo-400 hover:text-indigo-300 text-sm transition group">
+                            <img src="https://conectivaits.com/images/logo/logo-icono-blanco.png" alt="ConectivaITS"
+                                class="w-6 h-6 rounded object-contain opacity-70 group-hover:opacity-100 transition">
+                            ConectivaITS
+                        </a>
+                        <p class="text-gray-500 text-xs mt-2">Soluciones tecnológicas empresariales</p>
+                    </div>
                 </div>
-                <p class="text-gray-500 text-sm">© {{ date('Y') }} ConectaTusFinanzas. Todos los derechos reservados.
+            </div>
+
+            <!-- Bottom bar -->
+            <div class="border-t border-white/10 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <p class="text-gray-500 text-xs text-center sm:text-left">
+                    © {{ date('Y') }} ConectaTusFinanzas. Todos los derechos reservados.
                 </p>
+                <div class="flex items-center gap-1 text-gray-600 text-xs">
+                    <span>Hecho con</span>
+                    <svg class="w-3.5 h-3.5 text-rose-500" fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                    </svg>
+                    <span>en México</span>
+                </div>
             </div>
         </div>
     </footer>
+
+    <!-- Mobile menu toggle script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const btn = document.getElementById('mobile-menu-btn');
+            const menu = document.getElementById('mobile-menu');
+            if (btn && menu) {
+                btn.addEventListener('click', function () {
+                    menu.classList.toggle('open');
+                    // Toggle hamburger/close icon
+                    const svg = btn.querySelector('svg');
+                    if (menu.classList.contains('open')) {
+                        svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>';
+                    } else {
+                        svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>';
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>

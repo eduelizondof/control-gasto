@@ -29,8 +29,27 @@ class Group extends Model
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class)
-            ->withPivot('role', 'invited_by', 'joined_at', 'is_active')
+            ->withPivot('role', 'invited_by', 'joined_at', 'is_active', 'status')
             ->wherePivot('is_active', true);
+    }
+
+    /**
+     * Users with pending invitations to this group.
+     */
+    public function pendingUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class)
+            ->withPivot('role', 'invited_by', 'joined_at', 'is_active', 'status')
+            ->wherePivot('status', 'pending');
+    }
+
+    /**
+     * All users regardless of status (for uniqueness checks).
+     */
+    public function allUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class)
+            ->withPivot('role', 'invited_by', 'joined_at', 'is_active', 'status');
     }
 
     public function categories(): HasMany

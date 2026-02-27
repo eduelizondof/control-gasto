@@ -5,6 +5,23 @@
 
     <div class="py-6">
         <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            @php
+                $pendingInvitationsCount = auth()->user()->pendingInvitations()->count();
+            @endphp
+            @if($pendingInvitationsCount > 0)
+                <div
+                    class="mb-6 bg-indigo-50 border border-indigo-200 text-indigo-700 px-5 py-4 rounded-xl flex items-center justify-between">
+                    <div>
+                        <h4 class="font-bold text-sm">Tienes invitaciones pendientes</h4>
+                        <p class="text-xs mt-1">Antes de crear un grupo nuevo, puedes revisar tus invitaciones.</p>
+                    </div>
+                    <a href="{{ route('invitations.index') }}"
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-xs font-semibold rounded-lg shadow-sm transition shrink-0">
+                        Ver invitaciones
+                    </a>
+                </div>
+            @endif
+
             <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
                 <form method="POST" action="{{ route('groups.store') }}">
                     @csrf

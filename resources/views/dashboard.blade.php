@@ -13,6 +13,30 @@
 
     <div class="py-6">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {{-- Pending Invitations Alert --}}
+            @if($pendingInvitationsCount > 0)
+                <div class="mb-6 bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-2xl p-4 flex items-center justify-between"
+                    x-data="{ show: true }" x-show="show" x-transition>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0">
+                            <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-indigo-800">
+                                Tienes {{ $pendingInvitationsCount }} invitación{{ $pendingInvitationsCount > 1 ? 'es' : '' }} pendiente{{ $pendingInvitationsCount > 1 ? 's' : '' }}
+                            </p>
+                            <p class="text-xs text-indigo-600">Te han invitado a unirte a un grupo</p>
+                        </div>
+                    </div>
+                    <a href="{{ route('invitations.index') }}"
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition shadow-sm shrink-0">
+                        Ver invitaciones
+                    </a>
+                </div>
+            @endif
             <!-- Summary Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <!-- Total Balance -->
@@ -63,14 +87,15 @@
             <!-- Budget vs Expenses + Accounts -->
             <div class="grid lg:grid-cols-3 gap-6 mb-8">
                 <!-- Budget Overview -->
-                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <div class="lg:col-span-1 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                     <h3 class="text-lg font-bold text-gray-800 mb-4">Presupuesto vs Gasto Real</h3>
                     @if($activeBudget)
                         @php
                             $budgetDiff = $budgetTotal - $monthlyExpenses;
                             $budgetPercent = $budgetTotal > 0 ? min(100, round(($monthlyExpenses / $budgetTotal) * 100)) : 0;
                         @endphp
-                        <div class="mb-4">
+                        {{-- Global bar --}}
+                        <div class="mb-5">
                             <div class="flex justify-between text-sm mb-2">
                                 <span class="text-gray-600">Gastado: ${{ number_format($monthlyExpenses, 2) }}</span>
                                 <span class="text-gray-600">de ${{ number_format($budgetTotal, 2) }}</span>
@@ -82,6 +107,35 @@
                                 {{ $budgetDiff >= 0 ? 'Disponible: $' . number_format($budgetDiff, 2) : 'Excedido: $' . number_format(abs($budgetDiff), 2) }}
                             </p>
                         </div>
+
+                        {{-- Per-concept breakdown --}}
+                        @if($budgetBreakdown->isNotEmpty())
+                            <div class="border-t border-gray-100 pt-4">
+                                <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Desglose por concepto</p>
+                                <div class="space-y-3 max-h-64 overflow-y-auto pr-1">
+                                    @foreach($budgetBreakdown as $entry)
+                                        <div>
+                                            <div class="flex items-center justify-between text-xs mb-1">
+                                                <div class="flex items-center gap-1.5 min-w-0">
+                                                    <span class="w-2 h-2 rounded-full shrink-0" style="background-color: {{ $entry->category->color }}"></span>
+                                                    <span class="font-medium text-gray-700 truncate">{{ $entry->name }}</span>
+                                                </div>
+                                                <span class="font-bold shrink-0 ml-2 {{ $entry->diff >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">
+                                                    {{ $entry->diff >= 0 ? '-$' . number_format($entry->diff, 2) : '+$' . number_format(abs($entry->diff), 2) }}
+                                                </span>
+                                            </div>
+                                            <div class="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                                                <div class="h-1.5 rounded-full transition-all duration-300 {{ $entry->percent > 90 ? 'bg-rose-400' : ($entry->percent > 70 ? 'bg-amber-400' : 'bg-emerald-400') }}" style="width: {{ $entry->percent }}%"></div>
+                                            </div>
+                                            <div class="flex justify-between text-[10px] text-gray-400 mt-0.5">
+                                                <span>${{ number_format($entry->spent, 2) }} gastado</span>
+                                                <span>${{ number_format($entry->budgeted, 2) }} presup.</span>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
                     @else
                         <p class="text-gray-400 text-sm">No hay presupuesto activo.</p>
                         <a href="{{ route('budgets.create', $group) }}" class="text-indigo-600 text-sm font-medium hover:underline">Crear presupuesto →</a>

@@ -44,8 +44,9 @@ class DemoSeeder extends Seeder
         // ── 3. Create system categories ──
         $categories = $this->createCategories($group->id);
 
-        // ── 4. Create concepts ──
-        $concepts = $this->createConcepts($group->id, $categories);
+        // ── 4. Seed standard concepts ──
+        $this->call(ConceptSeeder::class);
+        $concepts = $this->loadConcepts($group->id);
 
         // ── 5. Create accounts ──
         $accounts = $this->createAccounts($group->id);
@@ -123,35 +124,12 @@ class DemoSeeder extends Seeder
         return $categories;
     }
 
-    private function createConcepts(int $groupId, array $categories): array
+    private function loadConcepts(int $groupId): array
     {
-        $data = [
-            'Salario' => ['Quincena 1', 'Quincena 2', 'Aguinaldo'],
-            'Alimentación' => ['Supermercado', 'Comida rápida', 'Frutas y verduras'],
-            'Transporte' => ['Gasolina', 'Uber / Taxi', 'Estacionamiento'],
-            'Servicios' => ['Electricidad CFE', 'Agua', 'Internet', 'Netflix', 'Spotify'],
-            'Vivienda' => ['Renta', 'Mantenimiento hogar'],
-        ];
-
-        $concepts = [];
-
-        foreach ($data as $categoryName => $items) {
-            if (!isset($categories[$categoryName])) {
-                continue;
-            }
-
-            foreach ($items as $name) {
-                $concept = Concept::create([
-                    'group_id' => $groupId,
-                    'category_id' => $categories[$categoryName]->id,
-                    'name' => $name,
-                    'is_system' => true,
-                ]);
-                $concepts[$name] = $concept;
-            }
-        }
-
-        return $concepts;
+        return Concept::where('group_id', $groupId)
+            ->get()
+            ->keyBy('name')
+            ->all();
     }
 
     private function createAccounts(int $groupId): array
@@ -214,7 +192,7 @@ class DemoSeeder extends Seeder
             ['concept' => 'Renta', 'category' => 'Vivienda', 'amount' => 8000, 'freq' => 'monthly', 'fixed' => true],
             ['concept' => 'Supermercado', 'category' => 'Alimentación', 'amount' => 4000, 'freq' => 'monthly', 'fixed' => false],
             ['concept' => 'Gasolina', 'category' => 'Transporte', 'amount' => 2000, 'freq' => 'monthly', 'fixed' => false],
-            ['concept' => 'Electricidad CFE', 'category' => 'Servicios', 'amount' => 1200, 'freq' => 'bimonthly', 'fixed' => false],
+            ['concept' => 'Luz (CFE)', 'category' => 'Servicios', 'amount' => 1200, 'freq' => 'bimonthly', 'fixed' => false],
             ['concept' => 'Internet', 'category' => 'Servicios', 'amount' => 699, 'freq' => 'monthly', 'fixed' => true],
             ['concept' => 'Netflix', 'category' => 'Servicios', 'amount' => 299, 'freq' => 'monthly', 'fixed' => true],
             ['concept' => 'Spotify', 'category' => 'Servicios', 'amount' => 179, 'freq' => 'monthly', 'fixed' => true],

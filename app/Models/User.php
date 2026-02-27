@@ -37,8 +37,18 @@ class User extends Authenticatable
     public function groups(): BelongsToMany
     {
         return $this->belongsToMany(Group::class)
-            ->withPivot('role', 'invited_by', 'joined_at', 'is_active')
+            ->withPivot('role', 'invited_by', 'joined_at', 'is_active', 'status')
             ->wherePivot('is_active', true);
+    }
+
+    /**
+     * Groups where the user has a pending invitation.
+     */
+    public function pendingInvitations(): BelongsToMany
+    {
+        return $this->belongsToMany(Group::class)
+            ->withPivot('role', 'invited_by', 'joined_at', 'is_active', 'status')
+            ->wherePivot('status', 'pending');
     }
 
     public function transactions(): HasMany
