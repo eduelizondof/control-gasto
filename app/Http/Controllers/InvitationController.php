@@ -100,6 +100,11 @@ class InvitationController extends Controller
     {
         $user = $request->user();
 
+        if ($user->currentGroup()) {
+            return redirect()->route('invitations.index')
+                ->withErrors(['error' => 'Ya perteneces a un grupo activo. No puedes aceptar esta invitación sin antes salir del actual.']);
+        }
+
         $pivot = $user->pendingInvitations()->where('groups.id', $group->id)->first();
 
         if (!$pivot) {

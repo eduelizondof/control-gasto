@@ -2,10 +2,12 @@
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <h2 class="text-2xl font-bold text-gray-800">Mis Grupos</h2>
-            <a href="{{ route('groups.create') }}"
-                class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition shadow-sm">
-                + Nuevo Grupo
-            </a>
+            @if(!auth()->user()->currentGroup())
+                <a href="{{ route('groups.create') }}"
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition shadow-sm">
+                    + Nuevo Grupo
+                </a>
+            @endif
         </div>
     </x-slot>
 
@@ -36,15 +38,25 @@
                             <a href="{{ route('groups.invite', $group) }}"
                                 class="text-emerald-600 text-sm font-medium hover:underline">Invitar</a>
                             <span class="text-gray-300">·</span>
-                            <a href="{{ route('groups.edit', $group) }}"
-                                class="text-indigo-600 text-sm font-medium hover:underline">Editar</a>
-                            <span class="text-gray-300">·</span>
-                            <form method="POST" action="{{ route('groups.destroy', $group) }}"
-                                onsubmit="return confirm('¿Seguro que deseas eliminar este grupo?')">
-                                @csrf @method('DELETE')
-                                <button type="submit"
-                                    class="text-rose-500 text-sm font-medium hover:underline">Eliminar</button>
-                            </form>
+
+                            @if($group->created_by === auth()->id())
+                                <a href="{{ route('groups.edit', $group) }}"
+                                    class="text-indigo-600 text-sm font-medium hover:underline">Editar</a>
+                                <span class="text-gray-300">·</span>
+                                <form method="POST" action="{{ route('groups.destroy', $group) }}" class="inline"
+                                    onsubmit="return confirm('¿Seguro que deseas eliminar este grupo por completo?')">
+                                    @csrf @method('DELETE')
+                                    <button type="submit"
+                                        class="text-rose-500 text-sm font-medium hover:underline">Eliminar</button>
+                                </form>
+                            @else
+                                <form method="POST" action="{{ route('groups.leave', $group) }}" class="inline"
+                                    onsubmit="return confirm('¿Seguro que deseas salir de este grupo? Podrás unirte a otro o crear uno nuevo.')">
+                                    @csrf
+                                    <button type="submit" class="text-amber-500 text-sm font-medium hover:underline">Salir de
+                                        grupo</button>
+                                </form>
+                            @endif
                         </div>
                     </div>
                 @empty
@@ -57,8 +69,10 @@
                             </svg>
                         </div>
                         <p class="text-gray-500 mb-2">No tienes grupos aún</p>
-                        <a href="{{ route('groups.create') }}" class="text-indigo-600 font-medium hover:underline">Crear tu
-                            primer grupo →</a>
+                        @if(!auth()->user()->currentGroup())
+                            <a href="{{ route('groups.create') }}" class="text-indigo-600 font-medium hover:underline">Crear tu
+                                primer grupo →</a>
+                        @endif
                     </div>
                 @endforelse
             </div>

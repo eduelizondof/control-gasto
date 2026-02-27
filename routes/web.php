@@ -30,6 +30,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Groups
     Route::resource('groups', GroupController::class)->except(['show']);
+    Route::post('groups/{group}/leave', [GroupController::class, 'leave'])->name('groups.leave');
 
     // Invitations (user-scoped)
     Route::get('invitations', [InvitationController::class, 'index'])->name('invitations.index');
