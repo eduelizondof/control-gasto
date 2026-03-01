@@ -75,7 +75,8 @@
                                 class="text-indigo-600 text-sm font-medium hover:underline">Editar</a>
                             <span class="text-gray-300">·</span>
                             <form method="POST" action="{{ route('reminders.destroy', [$group, $reminder]) }}"
-                                onsubmit="return confirm('¿Eliminar este recordatorio?')">
+                                data-confirm="Se eliminará el recordatorio '{{ $reminder->name }}'."
+                                data-title="¿Eliminar recordatorio?" data-btn-text="Sí, eliminar">
                                 @csrf @method('DELETE')
                                 <button class="text-rose-500 text-sm font-medium hover:underline">Eliminar</button>
                             </form>

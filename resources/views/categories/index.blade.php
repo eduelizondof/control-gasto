@@ -50,7 +50,8 @@
                                         @if(!$category->is_system)
                                             <span class="text-gray-300">·</span>
                                             <form method="POST" action="{{ route('categories.destroy', [$group, $category]) }}"
-                                                onsubmit="return confirm('¿Eliminar?')">
+                                                data-confirm="Se eliminará la categoría '{{ $category->name }}'. Los movimientos asociados quedarán sin categoría."
+                                                data-title="¿Eliminar categoría?" data-btn-text="Sí, eliminar">
                                                 @csrf @method('DELETE')
                                                 <button class="text-rose-500 text-xs font-medium hover:underline">Eliminar</button>
                                             </form>

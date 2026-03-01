@@ -16,6 +16,10 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -76,6 +80,71 @@
 
     @livewireScripts
     @include('layouts.pwa')
+
+    <script>
+        (function () {
+            // ── 1. Toasts para flash messages ──────────────────────────────────────
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 4000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                }
+            });
+
+            @if(session('success'))
+                Toast.fire({ icon: 'success', title: @json(session('success')) });
+            @endif
+
+            @if(session('error'))
+                Toast.fire({ icon: 'error', title: @json(session('error')) });
+            @endif
+
+            @if(session('info'))
+                Toast.fire({ icon: 'info', title: @json(session('info')) });
+            @endif
+
+            @if(session('warning'))
+                Toast.fire({ icon: 'warning', title: @json(session('warning')) });
+            @endif
+
+            // ── 2. Confirmación para forms con data-confirm ────────────────────────
+            document.addEventListener('DOMContentLoaded', function () {
+                document.querySelectorAll('form[data-confirm]').forEach(function (form) {
+                    form.addEventListener('submit', function (e) {
+                        e.preventDefault();
+
+                        const message = form.dataset.confirm || '¿Estás seguro?';
+                        const title = form.dataset.title || '¿Confirmar acción?';
+                        const icon = form.dataset.icon || 'warning';
+                        const btnText = form.dataset.btnText || 'Sí, continuar';
+                        const btnColor = form.dataset.btnColor || '#ef4444';
+
+                        Swal.fire({
+                            title: title,
+                            text: message,
+                            icon: icon,
+                            showCancelButton: true,
+                            confirmButtonColor: btnColor,
+                            cancelButtonColor: '#6b7280',
+                            confirmButtonText: btnText,
+                            cancelButtonText: 'Cancelar',
+                            reverseButtons: true,
+                            focusCancel: true,
+                        }).then(function (result) {
+                            if (result.isConfirmed) {
+                                form.submit();
+                            }
+                        });
+                    });
+                });
+            });
+        })();
+    </script>
 </body>
 
 </html>

@@ -146,7 +146,9 @@
                             class="text-indigo-600 text-sm font-medium hover:underline">Editar</a>
                         <span class="text-gray-300">·</span>
                         <form method="POST" action="{{ route('budgets.destroy', [$group, $budget]) }}"
-                            onsubmit="return confirm('¿Eliminar este presupuesto y todos sus items?')">
+                            data-confirm="Se eliminará el presupuesto '{{ $budget->name }}' y TODOS sus items. Esta acción no se puede deshacer."
+                            data-title="¿Eliminar presupuesto?"
+                            data-btn-text="Sí, eliminar todo">
                             @csrf @method('DELETE')
                             <button class="text-rose-500 text-sm font-medium hover:underline">Eliminar</button>
                         </form>

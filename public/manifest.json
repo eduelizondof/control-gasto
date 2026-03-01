@@ -1,7 +1,7 @@
 {
     "name": "ConectaTusFinanzas",
     "short_name": "Conecta",
-    "start_url": "/",
+    "start_url": "/login",
     "display": "standalone",
     "background_color": "#f9fafb",
     "theme_color": "#4f46e5",

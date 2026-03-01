@@ -33,7 +33,8 @@
                             <option value="">Todas</option>
                             @foreach($categories as $cat)
                                 <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>
-                                    {{ $cat->name }}</option>
+                                    {{ $cat->name }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
@@ -82,7 +83,8 @@
                                     </td>
                                     <td class="px-6 py-4">
                                         <div class="font-medium text-gray-800">
-                                            {{ $txn->description ?: ($txn->concept?->name ?: '-') }}</div>
+                                            {{ $txn->description ?: ($txn->concept?->name ?: '-') }}
+                                        </div>
                                     </td>
                                     <td class="px-6 py-4">
                                         <span
@@ -111,7 +113,8 @@
                                             <a href="{{ route('transactions.edit', [$group, $txn]) }}"
                                                 class="text-indigo-600 hover:text-indigo-800 text-xs font-medium">Editar</a>
                                             <form method="POST" action="{{ route('transactions.destroy', [$group, $txn]) }}"
-                                                onsubmit="return confirm('¿Eliminar este movimiento?')">
+                                                data-confirm="Se eliminará el movimiento '{{ $txn->description ?: ($txn->concept?->name ?: 'sin descripción') }}' por ${{ number_format($txn->amount, 2) }}."
+                                                data-title="¿Eliminar movimiento?" data-btn-text="Sí, eliminar">
                                                 @csrf @method('DELETE')
                                                 <button type="submit"
                                                     class="text-rose-500 hover:text-rose-700 text-xs font-medium">Eliminar</button>

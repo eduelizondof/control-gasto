@@ -59,7 +59,10 @@
                         <div class="flex items-center gap-2 mt-4 pt-4 border-t border-gray-50">
                             <a href="{{ route('accounts.edit', [$group, $account]) }}" class="text-indigo-600 text-sm font-medium hover:underline">Editar</a>
                             <span class="text-gray-300">·</span>
-                            <form method="POST" action="{{ route('accounts.destroy', [$group, $account]) }}" onsubmit="return confirm('¿Eliminar esta cuenta?')">
+                            <form method="POST" action="{{ route('accounts.destroy', [$group, $account]) }}"
+                                data-confirm="Se eliminará la cuenta '{{ $account->name }}' y todos sus datos asociados."
+                                data-title="¿Eliminar cuenta?"
+                                data-btn-text="Sí, eliminar">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="text-rose-500 text-sm font-medium hover:underline">Eliminar</button>
                             </form>

@@ -89,7 +89,9 @@
                                 class="text-indigo-600 text-sm font-medium hover:underline">Editar</a>
                             <span class="text-gray-300">·</span>
                             <form method="POST" action="{{ route('debts.destroy', [$group, $debt]) }}"
-                                onsubmit="return confirm('¿Eliminar esta deuda?')">
+                                data-confirm="Se eliminará la deuda '{{ $debt->name }}' (${{ number_format($debt->outstanding_balance, 2) }} pendiente)."
+                                data-title="¿Eliminar deuda?"
+                                data-btn-text="Sí, eliminar">
                                 @csrf @method('DELETE')
                                 <button class="text-rose-500 text-sm font-medium hover:underline">Eliminar</button>
                             </form>

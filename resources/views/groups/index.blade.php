@@ -44,14 +44,17 @@
                                     class="text-indigo-600 text-sm font-medium hover:underline">Editar</a>
                                 <span class="text-gray-300">·</span>
                                 <form method="POST" action="{{ route('groups.destroy', $group) }}" class="inline"
-                                    onsubmit="return confirm('¿Seguro que deseas eliminar este grupo por completo?')">
+                                    data-confirm="Se eliminará el grupo '{{ $group->name }}' y todos sus miembros perderán acceso a los datos."
+                                    data-title="¿Eliminar grupo?" data-btn-text="Sí, eliminar grupo">
                                     @csrf @method('DELETE')
                                     <button type="submit"
                                         class="text-rose-500 text-sm font-medium hover:underline">Eliminar</button>
                                 </form>
                             @else
                                 <form method="POST" action="{{ route('groups.leave', $group) }}" class="inline"
-                                    onsubmit="return confirm('¿Seguro que deseas salir de este grupo? Podrás unirte a otro o crear uno nuevo.')">
+                                    data-confirm="Saldrás del grupo '{{ $group->name }}'. Podrás unirte a otro o crear uno nuevo."
+                                    data-title="¿Salir del grupo?" data-icon="question" data-btn-text="Sí, salir"
+                                    data-btn-color="#f59e0b">
                                     @csrf
                                     <button type="submit" class="text-amber-500 text-sm font-medium hover:underline">Salir de
                                         grupo</button>

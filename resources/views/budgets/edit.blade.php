@@ -66,7 +66,10 @@
                                         </select>
                                         <button type="submit" class="text-indigo-600 hover:text-indigo-800 text-xs font-medium">Actualizar</button>
                                     </form>
-                                    <form method="POST" action="{{ route('budgets.delete-item', [$group, $budget, $item]) }}" onsubmit="return confirm('¿Eliminar este item?')">
+                                    <form method="POST" action="{{ route('budgets.delete-item', [$group, $budget, $item]) }}"
+                                        data-confirm="Se eliminará el item '{{ $item->concept?->name ?? $item->custom_name ?? $item->category->name }}' del presupuesto."
+                                        data-title="¿Eliminar item?"
+                                        data-btn-text="Sí, eliminar">
                                         @csrf @method('DELETE')
                                         <button class="text-rose-500 hover:text-rose-700 text-xs font-medium">×</button>
                                     </form>

@@ -65,7 +65,9 @@
                                             </button>
                                         </form>
                                         <form method="POST" action="{{ route('invitations.reject', $group) }}"
-                                            onsubmit="return confirm('¿Seguro que deseas rechazar esta invitación?')">
+                                            data-confirm="Rechazarás la invitación al grupo '{{ $group->name }}'."
+                                            data-title="¿Rechazar invitación?" data-icon="question" data-btn-text="Sí, rechazar"
+                                            data-btn-color="#ef4444">
                                             @csrf
                                             <button type="submit"
                                                 class="bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 px-5 py-2 rounded-xl text-sm font-semibold transition flex items-center gap-1.5">

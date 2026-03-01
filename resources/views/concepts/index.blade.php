@@ -62,7 +62,8 @@
                                         class="text-indigo-600 text-xs font-medium hover:underline">Editar</a>
                                     @unless($concept->is_system)
                                         <form method="POST" action="{{ route('concepts.destroy', [$group, $concept]) }}"
-                                            onsubmit="return confirm('¿Eliminar este concepto?')">
+                                            data-confirm="Se eliminará el concepto '{{ $concept->name }}'."
+                                            data-title="¿Eliminar concepto?" data-btn-text="Sí, eliminar">
                                             @csrf @method('DELETE')
                                             <button class="text-rose-500 text-xs font-medium hover:underline">Eliminar</button>
                                         </form>
