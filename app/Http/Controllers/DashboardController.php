@@ -72,6 +72,10 @@ class DashboardController extends Controller
 
         // Budget breakdown per concept/category
         $budgetBreakdown = collect();
+        $outOfBudgetBreakdown = collect();
+        $budgetSpent = 0;
+        $outOfBudgetTotal = 0;
+
         if ($activeBudget) {
             $budgetItems = $activeBudget->items()
                 ->where('is_active', true)
@@ -85,36 +89,37 @@ class DashboardController extends Controller
                 ->thisMonth()
                 ->ofType('expense')
                 ->whereNotNull('concept_id')
-                ->selectRaw('concept_id, SUM(amount) as total')
+                ->selectRaw('concept_id, MAX(category_id) as category_id, SUM(amount) as total')
                 ->groupBy('concept_id')
-                ->pluck('total', 'concept_id');
+                ->get()
+                ->keyBy('concept_id');
 
-            // Get actual expenses grouped by category_id (fallback)
+            // Get actual expenses grouped by category_id (fallback) - ONLY for transactions without a concept
             $expensesByCategory = $group->transactions()
                 ->confirmed()
                 ->thisMonth()
                 ->ofType('expense')
+                ->whereNull('concept_id')
                 ->selectRaw('category_id, SUM(amount) as total')
                 ->groupBy('category_id')
-                ->pluck('total', 'category_id');
-
-            // Track which concept-level spending has been assigned to avoid double counting
-            $usedCategorySpending = [];
+                ->get()
+                ->keyBy('category_id');
 
             foreach ($budgetItems as $item) {
                 $name = $item->concept?->name ?? $item->custom_name ?? $item->category->name;
+                $spent = 0;
 
                 if ($item->concept_id && $expensesByConcept->has($item->concept_id)) {
-                    $spent = (float) $expensesByConcept->get($item->concept_id);
-                } elseif (!$item->concept_id) {
-                    // Fallback: sum of category expenses not already assigned to a concept-level budget item
-                    $spent = (float) ($expensesByCategory->get($item->category_id, 0));
-                } else {
-                    $spent = 0;
+                    $spent = (float) $expensesByConcept->get($item->concept_id)->total;
+                    $expensesByConcept->forget($item->concept_id);
+                } elseif (!$item->concept_id && $expensesByCategory->has($item->category_id)) {
+                    $spent = (float) $expensesByCategory->get($item->category_id)->total;
+                    $expensesByCategory->forget($item->category_id);
                 }
 
                 $budgeted = (float) $item->monthly_amount;
                 $diff = $budgeted - $spent;
+                $budgetSpent += $spent;
 
                 $budgetBreakdown->push((object) [
                     'name' => $name,
@@ -125,6 +130,33 @@ class DashboardController extends Controller
                     'percent' => $budgeted > 0 ? min(100, round(($spent / $budgeted) * 100)) : 0,
                 ]);
             }
+
+            // Any remaining expenses in collections are out of budget
+            $remainingConcepts = \App\Models\Concept::with('category')->whereIn('id', $expensesByConcept->keys())->get()->keyBy('id');
+            foreach ($expensesByConcept as $conceptId => $data) {
+                $concept = $remainingConcepts->get($conceptId);
+                $spent = (float) $data->total;
+                $outOfBudgetTotal += $spent;
+                $outOfBudgetBreakdown->push((object) [
+                    'name' => $concept->name ?? 'Concepto Desconocido',
+                    'category' => $concept->category ?? null,
+                    'spent' => $spent,
+                ]);
+            }
+
+            $remainingCategories = \App\Models\Category::whereIn('id', $expensesByCategory->keys())->get()->keyBy('id');
+            foreach ($expensesByCategory as $categoryId => $data) {
+                $category = $remainingCategories->get($categoryId);
+                $spent = (float) $data->total;
+                $outOfBudgetTotal += $spent;
+                $outOfBudgetBreakdown->push((object) [
+                    'name' => 'General de '.($category->name ?? 'Categoría'),
+                    'category' => $category,
+                    'spent' => $spent,
+                ]);
+            }
+
+            $outOfBudgetBreakdown = $outOfBudgetBreakdown->sortByDesc('spent')->values();
         }
 
         // Expenses by category for chart
@@ -151,7 +183,10 @@ class DashboardController extends Controller
             'upcomingReminders',
             'activeBudget',
             'budgetTotal',
+            'budgetSpent',
             'budgetBreakdown',
+            'outOfBudgetBreakdown',
+            'outOfBudgetTotal',
             'expensesByCategory',
             'activeDebts',
             'currentPeriod',

@@ -90,7 +90,7 @@
                     <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
                         <div>
                             <label class="text-xs text-gray-500 font-medium">Categoría</label>
-                            <select name="category_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                            <select name="category_id" id="category_select" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500" required>
                                 <option value="">Seleccionar...</option>
                                 @foreach($categories as $cat)
                                     <option value="{{ $cat->id }}">{{ $cat->name }}</option>
@@ -98,8 +98,10 @@
                             </select>
                         </div>
                         <div>
-                            <label class="text-xs text-gray-500 font-medium">Nombre / Concepto</label>
-                            <input type="text" name="custom_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Ej: Renta" required>
+                            <label class="text-xs text-gray-500 font-medium">Concepto (Opcional)</label>
+                            <select name="concept_id" id="concept_select" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:opacity-50" disabled>
+                                <option value="">General de categoría...</option>
+                            </select>
                         </div>
                         <div>
                             <label class="text-xs text-gray-500 font-medium">Monto estimado</label>
@@ -129,4 +131,30 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const categorySelect = document.getElementById('category_select');
+            const conceptSelect = document.getElementById('concept_select');
+            
+            if (categorySelect && conceptSelect) {
+                const conceptsJson = @json($concepts->map(fn($c) => ['id' => $c->id, 'name' => $c->name, 'category_id' => $c->category_id]));
+
+                categorySelect.addEventListener('change', function () {
+                    const categoryId = this.value;
+                    conceptSelect.innerHTML = '<option value="">General de categoría...</option>';
+                    
+                    if (categoryId) {
+                        const filteredConcepts = conceptsJson.filter(c => c.category_id == categoryId);
+                        filteredConcepts.forEach(c => {
+                            conceptSelect.insertAdjacentHTML('beforeend', `<option value="${c.id}">${c.name}</option>`);
+                        });
+                        conceptSelect.disabled = false;
+                    } else {
+                        conceptSelect.disabled = true;
+                    }
+                });
+            }
+        });
+    </script>
 </x-app-layout>

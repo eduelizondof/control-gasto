@@ -31,6 +31,7 @@ class BudgetController extends Controller
             ->confirmed()
             ->thisMonth()
             ->ofType('expense')
+            ->whereNull('concept_id')
             ->selectRaw('category_id, SUM(amount) as total')
             ->groupBy('category_id')
             ->pluck('total', 'category_id');
@@ -151,7 +152,7 @@ class BudgetController extends Controller
     {
         $validated = $request->validate([
             'category_id' => 'required|exists:categories,id',
-            'custom_name' => 'nullable|string|max:150',
+            'concept_id' => 'nullable|exists:concepts,id',
             'estimated_amount' => 'required|numeric|min:0',
             'frequency' => 'required|in:monthly,bimonthly,quarterly,semiannual,annual',
         ]);
@@ -162,7 +163,7 @@ class BudgetController extends Controller
         BudgetItem::create([
             'monthly_budget_id' => $budget->id,
             'category_id' => $validated['category_id'],
-            'custom_name' => $validated['custom_name'],
+            'concept_id' => $validated['concept_id'] ?? null,
             'estimated_amount' => $validated['estimated_amount'],
             'frequency' => $validated['frequency'],
             'monthly_amount' => round($validated['estimated_amount'] / $divisor, 2),

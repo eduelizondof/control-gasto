@@ -46,53 +46,59 @@
                                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                                         <div>
                                             <label class="text-xs text-gray-500 font-medium">Categoría</label>
-                                            <select name="items[0][category_id]"
-                                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                                required>
-                                                <option value="">Seleccionar...</option>
-                                                @foreach($categories as $cat)
-                                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                                                @endforeach
-                                            </select>
+                                            <div>
+                                                <label class="text-xs text-gray-500 font-medium">Categoría</label>
+                                                <select name="items[0][category_id]"
+                                                    class="category-select mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                    required>
+                                                    <option value="">Seleccionar...</option>
+                                                    @foreach($categories as $cat)
+                                                        <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label class="text-xs text-gray-500 font-medium">Concepto (Opcional)</label>
+                                                <select name="items[0][concept_id]"
+                                                    class="concept-select mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:opacity-50"
+                                                    disabled>
+                                                    <option value="">General de categoría...</option>
+                                                    {{-- Opciones por JS --}}
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label class="text-xs text-gray-500 font-medium">Monto estimado</label>
+                                                <input type="number" step="0.01" name="items[0][estimated_amount]"
+                                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                    required>
+                                            </div>
+                                            <div>
+                                                <label class="text-xs text-gray-500 font-medium">Frecuencia</label>
+                                                <select name="items[0][frequency]"
+                                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                                    <option value="monthly">Mensual</option>
+                                                    <option value="bimonthly">Bimestral</option>
+                                                    <option value="quarterly">Trimestral</option>
+                                                    <option value="semiannual">Semestral</option>
+                                                    <option value="annual">Anual</option>
+                                                </select>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <label class="text-xs text-gray-500 font-medium">Nombre / Concepto</label>
-                                            <input type="text" name="items[0][custom_name]"
-                                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                                placeholder="Ej: Renta" required>
+                                        <div class="mt-2 flex justify-end">
+                                            <button type="button"
+                                                class="remove-item text-rose-500 text-xs hover:underline hidden">Eliminar</button>
                                         </div>
-                                        <div>
-                                            <label class="text-xs text-gray-500 font-medium">Monto estimado</label>
-                                            <input type="number" step="0.01" name="items[0][estimated_amount]"
-                                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                                required>
-                                        </div>
-                                        <div>
-                                            <label class="text-xs text-gray-500 font-medium">Frecuencia</label>
-                                            <select name="items[0][frequency]"
-                                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                                <option value="monthly">Mensual</option>
-                                                <option value="bimonthly">Bimestral</option>
-                                                <option value="quarterly">Trimestral</option>
-                                                <option value="semiannual">Semestral</option>
-                                                <option value="annual">Anual</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="mt-2 flex justify-end">
-                                        <button type="button"
-                                            class="remove-item text-rose-500 text-xs hover:underline hidden">Eliminar</button>
                                     </div>
                                 </div>
                             </div>
-                        </div>
                     @endif
 
-                    <div class="flex justify-end gap-3 mt-8">
-                        <a href="{{ route('budgets.index', $group) }}"
-                            class="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium text-sm">Cancelar</a>
-                        <x-primary-button>{{ isset($budget) ? 'Actualizar' : 'Crear' }} Presupuesto</x-primary-button>
-                    </div>
+                        <div class="flex justify-end gap-3 mt-8">
+                            <a href="{{ route('budgets.index', $group) }}"
+                                class="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium text-sm">Cancelar</a>
+                            <x-primary-button>{{ isset($budget) ? 'Actualizar' : 'Crear' }}
+                                Presupuesto</x-primary-button>
+                        </div>
                 </form>
             </div>
         </div>
@@ -106,36 +112,60 @@
                 const addBtn = document.getElementById('add-item-btn');
                 const categoriesJson = @json($categories->map(fn($c) => ['id' => $c->id, 'name' => $c->name]));
 
+                const conceptsJson = @json($concepts->map(fn($c) => ['id' => $c->id, 'name' => $c->name, 'category_id' => $c->category_id]));
+
                 addBtn.addEventListener('click', function () {
                     const catOptions = categoriesJson.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
                     const html = `
-                        <div class="budget-item bg-gray-50 rounded-xl p-4 mb-3" data-index="${itemIndex}">
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                <div>
-                                    <label class="text-xs text-gray-500 font-medium">Categoría</label>
-                                    <select name="items[${itemIndex}][category_id]" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500" required><option value="">Seleccionar...</option>${catOptions}</select>
+                            <div class="budget-item bg-gray-50 rounded-xl p-4 mb-3" data-index="${itemIndex}">
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div>
+                                        <label class="text-xs text-gray-500 font-medium">Categoría</label>
+                                        <select name="items[${itemIndex}][category_id]" class="category-select mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500" required><option value="">Seleccionar...</option>${catOptions}</select>
+                                    </div>
+                                    <div>
+                                        <label class="text-xs text-gray-500 font-medium">Concepto (Opcional)</label>
+                                        <select name="items[${itemIndex}][concept_id]" class="concept-select mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:opacity-50" disabled>
+                                            <option value="">General de categoría...</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="text-xs text-gray-500 font-medium">Monto estimado</label>
+                                        <input type="number" step="0.01" name="items[${itemIndex}][estimated_amount]" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                                    </div>
+                                    <div>
+                                        <label class="text-xs text-gray-500 font-medium">Frecuencia</label>
+                                        <select name="items[${itemIndex}][frequency]" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                            <option value="monthly">Mensual</option><option value="bimonthly">Bimestral</option><option value="quarterly">Trimestral</option><option value="semiannual">Semestral</option><option value="annual">Anual</option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div>
-                                    <label class="text-xs text-gray-500 font-medium">Nombre / Concepto</label>
-                                    <input type="text" name="items[${itemIndex}][custom_name]" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                                <div class="mt-2 flex justify-end">
+                                    <button type="button" class="remove-item text-rose-500 text-xs hover:underline">Eliminar</button>
                                 </div>
-                                <div>
-                                    <label class="text-xs text-gray-500 font-medium">Monto estimado</label>
-                                    <input type="number" step="0.01" name="items[${itemIndex}][estimated_amount]" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500" required>
-                                </div>
-                                <div>
-                                    <label class="text-xs text-gray-500 font-medium">Frecuencia</label>
-                                    <select name="items[${itemIndex}][frequency]" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                        <option value="monthly">Mensual</option><option value="bimonthly">Bimestral</option><option value="quarterly">Trimestral</option><option value="semiannual">Semestral</option><option value="annual">Anual</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="mt-2 flex justify-end">
-                                <button type="button" class="remove-item text-rose-500 text-xs hover:underline">Eliminar</button>
-                            </div>
-                        </div>`;
+                            </div>`;
                     container.insertAdjacentHTML('beforeend', html);
                     itemIndex++;
+                });
+
+                container.addEventListener('change', function (e) {
+                    if (e.target.classList.contains('category-select')) {
+                        const row = e.target.closest('.budget-item');
+                        const conceptSelect = row.querySelector('.concept-select');
+                        const categoryId = e.target.value;
+
+                        conceptSelect.innerHTML = '<option value="">General de categoría...</option>';
+
+                        if (categoryId) {
+                            const filteredConcepts = conceptsJson.filter(c => c.category_id == categoryId);
+                            filteredConcepts.forEach(c => {
+                                conceptSelect.insertAdjacentHTML('beforeend', `<option value="${c.id}">${c.name}</option>`);
+                            });
+                            conceptSelect.disabled = false;
+                        } else {
+                            conceptSelect.disabled = true;
+                        }
+                    }
                 });
 
                 container.addEventListener('click', function (e) {
