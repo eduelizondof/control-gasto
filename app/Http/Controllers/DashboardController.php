@@ -87,7 +87,15 @@ class DashboardController extends Controller
             $expensesByConcept = $group->transactions()
                 ->confirmed()
                 ->thisMonth()
-                ->ofType('expense')
+                ->where(function ($q) {
+                    $q->where('type', 'savings')
+                      ->orWhere(function ($sq) {
+                          $sq->where('type', 'expense')
+                             ->whereHas('sourceAccount', function ($aq) {
+                                 $aq->where('type', '!=', 'savings');
+                             });
+                      });
+                })
                 ->whereNotNull('concept_id')
                 ->selectRaw('concept_id, MAX(category_id) as category_id, SUM(amount) as total')
                 ->groupBy('concept_id')
@@ -98,7 +106,15 @@ class DashboardController extends Controller
             $expensesByCategory = $group->transactions()
                 ->confirmed()
                 ->thisMonth()
-                ->ofType('expense')
+                ->where(function ($q) {
+                    $q->where('type', 'savings')
+                      ->orWhere(function ($sq) {
+                          $sq->where('type', 'expense')
+                             ->whereHas('sourceAccount', function ($aq) {
+                                 $aq->where('type', '!=', 'savings');
+                             });
+                      });
+                })
                 ->whereNull('concept_id')
                 ->selectRaw('category_id, SUM(amount) as total')
                 ->groupBy('category_id')
