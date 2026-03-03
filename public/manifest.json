@@ -1,20 +1,32 @@
 {
-    "name": "ConectaTusFinanzas",
-    "short_name": "Conecta",
+    "name": "SmartBud — Control de Gastos Familiar",
+    "short_name": "SmartBud",
     "start_url": "/login",
     "display": "standalone",
     "background_color": "#f9fafb",
     "theme_color": "#4f46e5",
-    "description": "Control de gastos e ingresos - Conecta tus finanzas.",
+    "description": "SmartBud - Sistema inteligente de gestión de gastos personales y familiares",
     "icons": [
         {
-            "src": "https://conectivaits.com/images/logo/favicon/favicon-96x96.png",
+            "src": "/favicon-96x96.png",
             "sizes": "96x96",
             "type": "image/png",
             "purpose": "any maskable"
         },
         {
-            "src": "https://conectivaits.com/images/logo/favicon/apple-touch-icon.png",
+            "src": "/web-app-manifest-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/web-app-manifest-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/apple-touch-icon.png",
             "sizes": "180x180",
             "type": "image/png"
         }
