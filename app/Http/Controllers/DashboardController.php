@@ -237,7 +237,7 @@ class DashboardController extends Controller
             $outOfBudgetBreakdown = $outOfBudgetBreakdown->sortByDesc('spent')->values();
         }
 
-        // Expenses by category for chart
+        // Expenses by category for current month
         $expensesByCategory = $group->transactions()
             ->confirmed()
             ->thisMonth()
@@ -245,7 +245,8 @@ class DashboardController extends Controller
             ->selectRaw('category_id, SUM(amount) as total')
             ->groupBy('category_id')
             ->with('category')
-            ->get();
+            ->get()
+            ->sortByDesc('total');
 
         // Active debts
         $activeDebts = $group->debts()->active()->get();
@@ -304,6 +305,27 @@ class DashboardController extends Controller
         $incomeDiff = $configuredIncome > 0 ? $avgIncome12m - $configuredIncome : 0;
         $incomeDiffPercent = $configuredIncome > 0 ? round(($incomeDiff / $configuredIncome) * 100, 1) : 0;
 
+        // Expenses by category 12 months (Pie chart)
+        $expensesByCategory12m = $group->transactions()
+            ->confirmed()
+            ->where('date', '>=', $twelveMonthsAgo)
+            ->ofType('expense')
+            ->selectRaw('category_id, SUM(amount) as total')
+            ->groupBy('category_id')
+            ->with('category')
+            ->get()
+            ->sortByDesc('total');
+
+        $chartCategoryLabels = [];
+        $chartCategoryData = [];
+        $chartCategoryColors = [];
+
+        foreach ($expensesByCategory12m as $exp) {
+            $chartCategoryLabels[] = $exp->category->name ?? 'Sin categoría';
+            $chartCategoryData[] = (float) $exp->total;
+            $chartCategoryColors[] = $exp->category->color ?? '#9ca3af';
+        }
+
         return view('dashboard', compact(
             'group',
             'accounts',
@@ -339,6 +361,9 @@ class DashboardController extends Controller
             'chartIncome',
             'chartExpenses',
             'chartSavings',
+            'chartCategoryLabels',
+            'chartCategoryData',
+            'chartCategoryColors'
         ));
     }
 }

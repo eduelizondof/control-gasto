@@ -8,7 +8,33 @@
 
     <div class="py-6">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid lg:grid-cols-3 gap-6">
+            <div class="grid lg:grid-cols-3 gap-6" x-data="{
+                fixedIncome: {{ old('fixed_monthly_income', $configuration->fixed_monthly_income) }},
+                totalIncome: {{ old('total_monthly_income', $configuration->total_monthly_income) }},
+                necessities: {{ old('necessities_percentage', $configuration->necessities_percentage) }},
+                debts: {{ old('debts_percentage', $configuration->debts_percentage) }},
+                future: {{ old('future_percentage', $configuration->future_percentage) }},
+                desires: {{ old('desires_percentage', $configuration->desires_percentage) }},
+                get total() {
+                    return (parseFloat(this.necessities) || 0) + 
+                           (parseFloat(this.debts) || 0) + 
+                           (parseFloat(this.future) || 0) + 
+                           (parseFloat(this.desires) || 0);
+                },
+                formatMoney(amount) {
+                    return '$' + (parseFloat(amount) || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                },
+                getCapacity(percentage) {
+                    const pct = (parseFloat(percentage) || 0) / 100;
+                    const fixed = (parseFloat(this.fixedIncome) || 0) * pct;
+                    const total = (parseFloat(this.totalIncome) || 0) * pct;
+                    
+                    if (fixed === total) {
+                         return this.formatMoney(fixed);
+                    }
+                    return this.formatMoney(fixed) + ' - ' + this.formatMoney(total);
+                }
+            }">
                 <!-- Configuración de Porcentajes -->
                 <div class="lg:col-span-2">
                     <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
@@ -22,23 +48,7 @@
                             Configuración del Presupuesto
                         </h3>
 
-                        <form method="POST" action="{{ route('budget-configurations.update', $group) }}" x-data="{
-                            fixedIncome: {{ old('fixed_monthly_income', $configuration->fixed_monthly_income) }},
-                            totalIncome: {{ old('total_monthly_income', $configuration->total_monthly_income) }},
-                            necessities: {{ old('necessities_percentage', $configuration->necessities_percentage) }},
-                            debts: {{ old('debts_percentage', $configuration->debts_percentage) }},
-                            future: {{ old('future_percentage', $configuration->future_percentage) }},
-                            desires: {{ old('desires_percentage', $configuration->desires_percentage) }},
-                            get total() {
-                                return (parseFloat(this.necessities) || 0) + 
-                                       (parseFloat(this.debts) || 0) + 
-                                       (parseFloat(this.future) || 0) + 
-                                       (parseFloat(this.desires) || 0);
-                            },
-                            get debtCapacity() {
-                                return ((parseFloat(this.totalIncome) || 0) * (parseFloat(this.debts) || 0) / 100);
-                            }
-                        }">
+                        <form method="POST" action="{{ route('budget-configurations.update', $group) }}">
                             @csrf
                             @method('PATCH')
 
@@ -79,15 +89,6 @@
                                             placeholder="Ej: 35000 (con bonos, extras)">
                                         <p class="mt-1 text-xs text-gray-400">Incluye bonos, comisiones, extras</p>
                                     </div>
-                                </div>
-                                <div class="mt-3 p-3 bg-white/60 rounded-lg" x-show="totalIncome > 0 && debts > 0">
-                                    <p class="text-sm text-emerald-700">
-                                        <span class="font-bold">Capacidad de deuda:</span>
-                                        $<span
-                                            x-text="debtCapacity.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span>/mes
-                                        <span class="text-xs text-gray-500">(con <span x-text="debts"></span>% de $<span
-                                                x-text="parseFloat(totalIncome).toLocaleString('en-US', {minimumFractionDigits: 2})"></span>)</span>
-                                    </p>
                                 </div>
                             </div>
 
@@ -179,23 +180,65 @@
                     </div>
 
                     <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                        <h4 class="font-bold text-gray-800 mb-4">Resumen Sugerido</h4>
-                        <div class="space-y-3">
-                            <div class="flex items-center justify-between text-sm">
-                                <span class="text-gray-500">Necesidades</span>
-                                <span class="font-bold text-gray-800">50%</span>
+                        <h4 class="font-bold text-gray-800 mb-4">Proyección de Presupuesto</h4>
+
+                        <div class="space-y-3 mb-6">
+                            <div class="flex flex-col text-sm border-b border-gray-50 pb-2">
+                                <div class="flex justify-between w-full mb-1">
+                                    <span class="text-gray-500 font-semibold">Necesidades</span>
+                                    <span class="text-indigo-600 font-bold text-xs" x-text="necessities + '%'"></span>
+                                </div>
+                                <span class="font-bold text-gray-800" x-text="getCapacity(necessities)"></span>
                             </div>
-                            <div class="flex items-center justify-between text-sm">
-                                <span class="text-gray-500">Deudas</span>
-                                <span class="font-bold text-gray-800">20-30%</span>
+                            <div class="flex flex-col text-sm border-b border-gray-50 pb-2">
+                                <div class="flex justify-between w-full mb-1">
+                                    <span class="text-gray-500 font-semibold">Deudas</span>
+                                    <span class="text-indigo-600 font-bold text-xs" x-text="debts + '%'"></span>
+                                </div>
+                                <span class="font-bold text-gray-800" x-text="getCapacity(debts)"></span>
                             </div>
-                            <div class="flex items-center justify-between text-sm">
-                                <span class="text-gray-500">Futuro</span>
-                                <span class="font-bold text-gray-800">15-20%</span>
+                            <div class="flex flex-col text-sm border-b border-gray-50 pb-2">
+                                <div class="flex justify-between w-full mb-1">
+                                    <span class="text-gray-500 font-semibold">Futuro</span>
+                                    <span class="text-indigo-600 font-bold text-xs" x-text="future + '%'"></span>
+                                </div>
+                                <span class="font-bold text-gray-800" x-text="getCapacity(future)"></span>
                             </div>
-                            <div class="flex items-center justify-between text-sm">
-                                <span class="text-gray-500">Deseos</span>
-                                <span class="font-bold text-gray-800">10%</span>
+                            <div class="flex flex-col text-sm">
+                                <div class="flex justify-between w-full mb-1">
+                                    <span class="text-gray-500 font-semibold">Deseos</span>
+                                    <span class="text-indigo-600 font-bold text-xs" x-text="desires + '%'"></span>
+                                </div>
+                                <span class="font-bold text-gray-800" x-text="getCapacity(desires)"></span>
+                            </div>
+                        </div>
+
+                        <div class="bg-indigo-50 rounded-xl p-4">
+                            <h4 class="font-bold text-indigo-900 mb-2 text-sm flex items-center gap-2">
+                                <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 16h-1v-4h-1m1-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Resumen Sugerido
+                            </h4>
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="text-indigo-700">Necesidades</span>
+                                    <span class="font-bold text-indigo-900">50%</span>
+                                </div>
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="text-indigo-700">Deudas</span>
+                                    <span class="font-bold text-indigo-900">20-30%</span>
+                                </div>
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="text-indigo-700">Futuro</span>
+                                    <span class="font-bold text-indigo-900">15-20%</span>
+                                </div>
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="text-indigo-700">Deseos</span>
+                                    <span class="font-bold text-indigo-900">10%</span>
+                                </div>
                             </div>
                         </div>
                     </div>
