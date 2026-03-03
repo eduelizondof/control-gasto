@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Custom Pace JS Styles (Center Simple Theme Overrides) */
+.pace {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 100vw rgba(255, 255, 255, 0.6) !important;
+}
+
+.pace .pace-progress {
+  background: #6366f1 !important;
+}
+
+.dark .pace {
+  box-shadow: 0 0 0 100vw rgba(15, 23, 42, 0.8) !important;
+}

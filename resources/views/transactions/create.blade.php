@@ -1,7 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-2xl font-bold text-gray-800">
-            {{ isset($transaction) ? 'Editar Movimiento' : 'Nuevo Movimiento' }}</h2>
+            {{ isset($transaction) ? 'Editar Movimiento' : 'Nuevo Movimiento' }}
+        </h2>
     </x-slot>
 
     <div class="py-6">
@@ -81,7 +82,8 @@
                                 required>
                                 @foreach($accounts as $acc)
                                     <option value="{{ $acc->id }}" {{ old('source_account_id', $transaction->source_account_id ?? '') == $acc->id ? 'selected' : '' }}>
-                                        {{ $acc->name }} (${{ number_format($acc->current_balance, 2) }})</option>
+                                        {{ $acc->name }} (${{ number_format($acc->current_balance, 2) }})
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -93,7 +95,8 @@
                                 <option value="">No aplica</option>
                                 @foreach($accounts as $acc)
                                     <option value="{{ $acc->id }}" {{ old('destination_account_id', $transaction->destination_account_id ?? '') == $acc->id ? 'selected' : '' }}>
-                                        {{ $acc->name }}</option>
+                                        {{ $acc->name }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -123,4 +126,34 @@
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const categorySelect = document.getElementById('category_id');
+            const conceptSelect = document.getElementById('concept_id');
+            const conceptsJson = @json($concepts->map(fn($c) => ['id' => $c->id, 'name' => $c->name, 'category_id' => $c->category_id]));
+
+            function filterConcepts(preserveSelection = false) {
+                const categoryId = categorySelect.value;
+                const currentSelection = conceptSelect.value;
+
+                conceptSelect.innerHTML = '<option value="">Sin concepto</option>';
+
+                if (categoryId) {
+                    const filteredConcepts = conceptsJson.filter(c => c.category_id == categoryId);
+                    filteredConcepts.forEach(c => {
+                        conceptSelect.insertAdjacentHTML('beforeend', `<option value="${c.id}">${c.name}</option>`);
+                    });
+                }
+
+                if (preserveSelection && currentSelection) {
+                    conceptSelect.value = currentSelection;
+                }
+            }
+
+            categorySelect.addEventListener('change', () => filterConcepts(false));
+
+            // Filtrar en la carga inicial
+            filterConcepts(true);
+        });
+    </script>
 </x-app-layout>
