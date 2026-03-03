@@ -1,10 +1,14 @@
 @php
     $group = auth()->user()?->groups()?->first();
     $pendingInvitationsCount = auth()->user()?->pendingInvitations()->count() ?? 0;
+    
+    // Notifications specific data
+    $userNotifications = auth()->user()?->notifications()->take(20)->get() ?? collect();
+    $unreadCount = $userNotifications->where('pivot.read_at', null)->count();
 @endphp
 
 {{-- ===== Floating Full-Screen Menu Overlay ===== --}}
-<div x-data="{ menuOpen: false, touchStartY: 0 }" x-cloak>
+<div x-data="{ menuOpen: false, notificationsOpen: false, touchStartY: 0, notifTouchY: 0 }" x-cloak>
 
     {{-- Overlay backdrop + panel --}}
     <div x-show="menuOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
@@ -200,6 +204,116 @@
         </div>
     </div>
 
+    {{-- ===== Floating Notifications Panel ===== --}}
+    <div x-show="notificationsOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50"
+        @click.self="notificationsOpen = false">
+
+        {{-- Dark backdrop --}}
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="notificationsOpen = false"></div>
+
+        {{-- Panel sliding from bottom --}}
+        <div x-show="notificationsOpen" x-transition:enter="transition ease-out duration-300 transform"
+            x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
+            x-transition:leave="transition ease-in duration-200 transform" x-transition:leave-start="translate-y-0"
+            x-transition:leave-end="translate-y-full"
+            class="absolute bottom-[4.5rem] left-3 right-3 bg-gray-50 rounded-2xl shadow-2xl overflow-hidden max-h-[75vh] flex flex-col"
+            x-on:touchstart.passive="notifTouchY = $event.touches[0].clientY"
+            x-on:touchend.passive="if ($event.changedTouches[0].clientY - notifTouchY > 80) notificationsOpen = false">
+
+            {{-- Drag handle --}}
+            <div class="flex justify-center pt-3 pb-1 cursor-grab bg-white rounded-t-2xl">
+                <div class="w-10 h-1 rounded-full bg-gray-300"></div>
+            </div>
+
+            {{-- Header --}}
+            <div class="bg-white px-5 py-3 flex items-center justify-between border-b border-gray-100 shadow-sm z-10">
+                <h3 class="font-bold text-gray-800 text-lg flex items-center gap-2">
+                    Notificaciones
+                    @if($unreadCount > 0)
+                        <span id="notif-header-count" class="bg-rose-100 text-rose-600 text-[10px] px-2 py-0.5 rounded-full font-bold">{{ $unreadCount }} nuevas</span>
+                    @endif
+                </h3>
+                <div class="flex items-center gap-2">
+                    @if($unreadCount > 0)
+                    <button onclick="markAllAsRead()" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition px-2 py-1 rounded-lg hover:bg-indigo-50">
+                        Marcar todo leído
+                    </button>
+                    @endif
+                    <button @click="notificationsOpen = false" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            {{-- Notifications List --}}
+            <div class="overflow-y-auto flex-1 p-3 space-y-2">
+                @forelse($userNotifications as $notif)
+                    @php
+                        $isUnread = is_null($notif->pivot->read_at);
+                        $colorClass = match($notif->type) {
+                            'success' => 'text-emerald-600 bg-emerald-100 ring-emerald-500/30',
+                            'warning' => 'text-amber-600 bg-amber-100 ring-amber-500/30',
+                            'error' => 'text-rose-600 bg-rose-100 ring-rose-500/30',
+                            default => 'text-indigo-600 bg-indigo-100 ring-indigo-500/30'
+                        };
+                        
+                        $iconPath = match($notif->type) {
+                            'success' => 'M5 13l4 4L19 7',
+                            'warning' => 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z',
+                            'error' => 'M6 18L18 6M6 6l12 12',
+                            default => 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+                        };
+                    @endphp
+
+                    <div id="notif-{{ $notif->id }}" onclick="markAsRead({{ $notif->id }}, this)" 
+                         class="notification-item relative cursor-pointer {{ $isUnread ? 'bg-white border-l-4 border-indigo-500 unread shadow-sm' : 'bg-gray-50/50 border-l-4 border-transparent' }} rounded-xl p-4 transition-all duration-200 hover:shadow-md border border-gray-100">
+                        
+                        @if($isUnread)
+                            <div class="unread-indicator absolute top-3 right-3 w-2.5 h-2.5 bg-indigo-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.6)]"></div>
+                        @endif
+
+                        <div class="flex gap-3">
+                            <div class="flex-shrink-0 mt-0.5">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center ring-2 shadow-inner {{ $colorClass }}">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="{{ $iconPath }}" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="flex-1 min-w-0 pr-4">
+                                <p class="text-sm font-bold {{ $isUnread ? 'text-gray-900' : 'text-gray-600' }}">
+                                    {{ $notif->title }}
+                                </p>
+                                <p class="text-xs text-gray-500 mt-1 leading-relaxed">
+                                    {{ $notif->message }}
+                                </p>
+                                <p class="text-[10px] font-medium text-gray-400 mt-2 flex items-center gap-1">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    {{ $notif->created_at->diffForHumans() }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="flex flex-col items-center justify-center h-48 text-gray-400">
+                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                            <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                            </svg>
+                        </div>
+                        <p class="text-sm font-medium">No tienes notificaciones</p>
+                    </div>
+                @endforelse
+            </div>
+        </div>
+    </div>
+
     {{-- ===== Fixed Bottom Navigation Bar ===== --}}
     <nav
         class="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.06)]">
@@ -261,29 +375,26 @@
                 </div>
             @endif
 
-            {{-- 4. Deudas --}}
-            @if($group)
-                <a href="{{ route('debts.index', $group) }}"
-                    class="flex flex-col items-center justify-center gap-0.5 px-2 py-1 rounded-xl transition
-                                                  {{ request()->routeIs('debts.*') ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600' }}">
+            {{-- 4. Notificaciones --}}
+            <button @click="notificationsOpen = !notificationsOpen; menuOpen = false"
+                class="relative flex flex-col items-center justify-center gap-0.5 px-2 py-1 rounded-xl transition"
+                :class="notificationsOpen ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600'">
+                <div class="relative">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                            d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                     </svg>
-                    <span class="text-[10px] font-semibold leading-tight">Deudas</span>
-                </a>
-            @else
-                <div class="flex flex-col items-center justify-center gap-0.5 px-2 py-1 text-gray-300">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                            d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    <span class="text-[10px] font-semibold leading-tight">Deudas</span>
+                    @if($unreadCount > 0)
+                        <span id="notif-badge" class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white shadow-sm ring-2 ring-white">
+                            {{ $unreadCount > 9 ? '9+' : $unreadCount }}
+                        </span>
+                    @endif
                 </div>
-            @endif
+                <span class="text-[10px] font-semibold leading-tight">Alertas</span>
+            </button>
 
             {{-- 5. Menú --}}
-            <button @click="menuOpen = !menuOpen"
+            <button @click="menuOpen = !menuOpen; notificationsOpen = false"
                 class="flex flex-col items-center justify-center gap-0.5 px-2 py-1 rounded-xl transition"
                 :class="menuOpen ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600'">
                 <svg x-show="!menuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -300,3 +411,90 @@
         <div class="h-safe-area-bottom bg-white"></div>
     </nav>
 </div>
+
+{{-- Notification JavaScript --}}
+<script>
+    function markAsRead(id, element) {
+        if (!element.classList.contains('unread')) return;
+
+        fetch(`/notifications/${id}/read`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        }).then(res => res.json()).then(data => {
+            if(data.success) {
+                // visually mark as read
+                element.classList.remove('bg-white', 'border-indigo-500', 'unread');
+                element.classList.add('bg-gray-50/50', 'border-transparent');
+                
+                // Dim title
+                let title = element.querySelector('.text-gray-900');
+                if(title) {
+                    title.classList.remove('text-gray-900');
+                    title.classList.add('text-gray-600');
+                }
+
+                let badge = element.querySelector('.unread-indicator');
+                if (badge) badge.remove();
+                
+                // Decrement main badge count
+                let mainBadge = document.getElementById('notif-badge');
+                if(mainBadge) {
+                    let count = parseInt(mainBadge.innerText) || 1;
+                    count--;
+                    if(count <= 0) {
+                        mainBadge.remove();
+                    } else {
+                        mainBadge.innerText = count;
+                    }
+                }
+
+                // Decrement header badge
+                let headerBadge = document.getElementById('notif-header-count');
+                if(headerBadge) {
+                    let count = parseInt(headerBadge.innerText) || 1;
+                    count--;
+                    if(count <= 0) {
+                        headerBadge.remove();
+                    } else {
+                        headerBadge.innerText = count + ' nuevas';
+                    }
+                }
+            }
+        });
+    }
+
+    function markAllAsRead() {
+        fetch(`/notifications/read-all`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        }).then(res => res.json()).then(data => {
+            if(data.success) {
+                document.querySelectorAll('.notification-item.unread').forEach(el => {
+                    el.classList.remove('bg-white', 'border-indigo-500', 'unread');
+                    el.classList.add('bg-gray-50/50', 'border-transparent');
+                    
+                    let title = el.querySelector('.text-gray-900');
+                    if(title) {
+                        title.classList.remove('text-gray-900');
+                        title.classList.add('text-gray-600');
+                    }
+
+                    let badge = el.querySelector('.unread-indicator');
+                    if (badge) badge.remove();
+                });
+                
+                let mainBadge = document.getElementById('notif-badge');
+                if(mainBadge) mainBadge.remove();
+                
+                let headerBadge = document.getElementById('notif-header-count');
+                if(headerBadge) headerBadge.remove();
+            }
+        });
+    }
+</script>

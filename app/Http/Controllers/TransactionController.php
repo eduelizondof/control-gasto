@@ -10,7 +10,8 @@ use Illuminate\Http\Request;
 class TransactionController extends Controller
 {
     public function __construct(
-        private readonly TransactionService $transactionService
+        private readonly TransactionService $transactionService,
+        private readonly \App\Services\NotificationService $notificationService
     ) {}
 
     public function index(Request $request, Group $group)
@@ -89,6 +90,26 @@ class TransactionController extends Controller
         $validated['source'] = 'manual';
 
         $this->transactionService->create($validated);
+
+        // Define friendly name for notification
+        $typeLabel = match ($validated['type']) {
+            'income' => 'Ingreso',
+            'expense' => 'Gasto',
+            'transfer' => 'Transferencia',
+            'savings' => 'Ahorro',
+            'adjustment' => 'Ajuste',
+            default => 'Movimiento',
+        };
+
+        $formattedAmount = number_format($validated['amount'], 2);
+
+        $this->notificationService->notifyGroup(
+            $group,
+            $request->user(),
+            "Nuevo $typeLabel registrado",
+            "{$request->user()->name} registró un $typeLabel por $$formattedAmount.",
+            'success'
+        );
 
         return redirect()->route('transactions.index', $group)
             ->with('success', 'Movimiento registrado exitosamente.');

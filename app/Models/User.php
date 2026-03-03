@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Notification;
 
 class User extends Authenticatable
 {
@@ -54,6 +55,14 @@ class User extends Authenticatable
     public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class);
+    }
+
+    public function notifications(): BelongsToMany
+    {
+        return $this->belongsToMany(Notification::class)
+            ->withPivot('read_at')
+            ->orderByDesc('created_at')
+            ->withTimestamps();
     }
 
     /**
