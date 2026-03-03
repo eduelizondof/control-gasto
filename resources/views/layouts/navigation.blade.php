@@ -70,29 +70,9 @@
                     </a>
 
                     @if($group)
-                        <a href="{{ route('accounts.index', $group) }}"
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition
-                                                      {{ request()->routeIs('accounts.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50' }}">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                            </svg>
-                            Cuentas
-                        </a>
-
-                        <a href="{{ route('transactions.index', $group) }}"
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition
-                                                      {{ request()->routeIs('transactions.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50' }}">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                            </svg>
-                            Movimientos
-                        </a>
-
                         <a href="{{ route('budgets.index', $group) }}"
                             class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition
-                                                      {{ request()->routeIs('budgets.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50' }}">
+                                                          {{ request()->routeIs('budgets.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50' }}">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                     d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -100,9 +80,49 @@
                             Presupuesto
                         </a>
 
+                        <a href="{{ route('accounts.index', $group) }}"
+                            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition
+                                                          {{ request()->routeIs('accounts.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50' }}">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                            </svg>
+                            Cuentas
+                        </a>
+
+                        <a href="{{ route('debts.index', $group) }}"
+                            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition
+                                                          {{ request()->routeIs('debts.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50' }}">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            Deudas
+                        </a>
+
+                        <a href="{{ route('transactions.index', $group) }}"
+                            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition
+                                                          {{ request()->routeIs('transactions.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50' }}">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                            </svg>
+                            Movimientos
+                        </a>
+
+                        <a href="{{ route('reminders.index', $group) }}"
+                            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition
+                                                          {{ request()->routeIs('reminders.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50' }}">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                            </svg>
+                            Recordatorios
+                        </a>
+
                         <a href="{{ route('categories.index', $group) }}"
                             class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition
-                                                      {{ request()->routeIs('categories.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50' }}">
+                                                          {{ request()->routeIs('categories.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50' }}">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                     d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z" />
@@ -112,32 +132,12 @@
 
                         <a href="{{ route('concepts.index', $group) }}"
                             class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition
-                                                      {{ request()->routeIs('concepts.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50' }}">
+                                                          {{ request()->routeIs('concepts.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50' }}">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                     d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                             </svg>
                             Conceptos
-                        </a>
-
-                        <a href="{{ route('debts.index', $group) }}"
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition
-                                                      {{ request()->routeIs('debts.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50' }}">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                            </svg>
-                            Deudas
-                        </a>
-
-                        <a href="{{ route('reminders.index', $group) }}"
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition
-                                                      {{ request()->routeIs('reminders.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50' }}">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                            </svg>
-                            Recordatorios
                         </a>
                     @endif
                 </div>
@@ -220,7 +220,7 @@
             @if($group)
                 <a href="{{ route('transactions.index', $group) }}"
                     class="flex flex-col items-center justify-center gap-0.5 px-2 py-1 rounded-xl transition
-                                              {{ request()->routeIs('transactions.index') ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600' }}">
+                                                  {{ request()->routeIs('transactions.index') ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600' }}">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                             d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
@@ -265,7 +265,7 @@
             @if($group)
                 <a href="{{ route('debts.index', $group) }}"
                     class="flex flex-col items-center justify-center gap-0.5 px-2 py-1 rounded-xl transition
-                                              {{ request()->routeIs('debts.*') ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600' }}">
+                                                  {{ request()->routeIs('debts.*') ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600' }}">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                             d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
