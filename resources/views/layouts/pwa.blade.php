@@ -7,12 +7,11 @@
         <div class="flex items-center gap-4">
             <div
                 class="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center flex-shrink-0 border border-indigo-100">
-                <img src="https://conectivaits.com/images/logo/logo-icono-color.png" alt="Icon"
-                    class="w-8 h-8 object-contain">
+                <img src="/logo.png" alt="Icon" class="w-8 h-8 object-contain">
             </div>
             <div>
                 <h3 class="font-bold text-gray-900 text-sm">Instala la App</h3>
-                <p class="text-xs text-gray-500 mt-0.5 leading-relaxed">Añade ConectaTusFinanzas al inicio para un
+                <p class="text-xs text-gray-500 mt-0.5 leading-relaxed">Añade SmartBud al inicio para un
                     acceso más rápido.</p>
             </div>
         </div>

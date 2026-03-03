@@ -4,9 +4,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description"
-        content="ConectaTusFinanzas - Sistema inteligente de gestión de gastos personales y familiares">
-    <title>ConectaTusFinanzas — Control de Gastos Familiar</title>
+    <meta name="description" content="SmartBud - Sistema inteligente de gestión de gastos personales y familiares">
+    <title>SmartBud — Control de Gastos Familiar</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:300,400,500,600,700,800,900&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -130,9 +129,9 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <a href="/" class="flex items-center gap-3">
-                    <img src="https://conectivaits.com/images/logo/logo-icono-blanco.png" alt="ConectaTusFinanzas"
-                        class="w-9 h-9 rounded-xl shadow-lg shadow-indigo-500/30 object-contain">
-                    <span class="text-white font-bold text-lg sm:text-xl tracking-tight">ConectaTusFinanzas</span>
+                    <img src="/logo.png" alt="SmartBud"
+                        class="w-9 h-9 bg-white/90 p-1.5 rounded-xl shadow-lg shadow-indigo-500/30 object-contain">
+                    <span class="text-white font-bold text-lg sm:text-xl tracking-tight">SmartBud</span>
                 </a>
 
                 <div class="flex items-center gap-3">
@@ -493,7 +492,7 @@
                 <span class="gradient-text">dinero hoy</span>
             </h2>
             <p class="text-lg sm:text-xl text-indigo-200/80 mb-8 sm:mb-10 max-w-2xl mx-auto">
-                Deja de preocuparte por tus finanzas. ConectaTusFinanzas te da la claridad que necesitas para alcanzar
+                Deja de preocuparte por tus finanzas. SmartBud te da la claridad que necesitas para alcanzar
                 tus metas financieras.
             </p>
             <a href="{{ route('register') }}"
@@ -516,9 +515,9 @@
                     <!-- Brand -->
                     <div class="sm:col-span-2 lg:col-span-1">
                         <a href="/" class="flex items-center gap-3 mb-4">
-                            <img src="https://conectivaits.com/images/logo/logo-icono-blanco.png"
-                                alt="ConectaTusFinanzas" class="w-8 h-8 rounded-lg object-contain">
-                            <span class="text-white font-bold text-lg">ConectaTusFinanzas</span>
+                            <img src="/logo.png" alt="SmartBud"
+                                class="w-8 h-8 bg-white/90 p-1.5 rounded-lg object-contain">
+                            <span class="text-white font-bold text-lg">SmartBud</span>
                         </a>
                         <p class="text-gray-400 text-sm leading-relaxed max-w-xs">
                             Sistema inteligente de gestión de gastos personales y familiares.
@@ -569,7 +568,7 @@
             <!-- Bottom bar -->
             <div class="border-t border-white/10 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
                 <p class="text-gray-500 text-xs text-center sm:text-left">
-                    © {{ date('Y') }} ConectaTusFinanzas. Todos los derechos reservados.
+                    © {{ date('Y') }} SmartBud by Conectiva ITS. Todos los derechos reservados.
                 </p>
                 <div class="flex items-center gap-1 text-gray-600 text-xs">
                     <span>Hecho con</span>

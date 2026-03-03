@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'ConectaTusFinanzas') }}</title>
+    <title>{{ config('app.name', 'SmartBud') }}</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -160,11 +160,10 @@
         <div class="relative z-10 mb-6 sm:mb-8">
             <a href="/" class="flex flex-col items-center gap-3 group">
                 <div
-                    class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:shadow-indigo-500/30 transition-all group-hover:scale-105">
-                    <img src="https://conectivaits.com/images/logo/logo-icono-blanco.png" alt="ConectaTusFinanzas"
-                        class="w-10 h-10 sm:w-12 sm:h-12 object-contain">
+                    class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-white to-gray-100 border border-white/50 flex items-center justify-center shadow-lg shadow-indigo-500/30 group-hover:shadow-indigo-500/40 transition-all group-hover:scale-105">
+                    <img src="/logo.png" alt="SmartBud" class="w-10 h-10 sm:w-12 sm:h-12 object-contain">
                 </div>
-                <span class="text-white font-bold text-xl sm:text-2xl tracking-tight">ConectaTusFinanzas</span>
+                <span class="text-white font-bold text-xl sm:text-2xl tracking-tight">SmartBud</span>
             </a>
         </div>
 
