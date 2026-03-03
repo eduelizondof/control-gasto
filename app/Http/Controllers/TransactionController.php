@@ -45,7 +45,7 @@ class TransactionController extends Controller
 
         $transactions = $query->orderByDesc('date')
             ->orderByDesc('created_at')
-            ->paginate(20)
+            ->paginate(10)
             ->withQueryString();
 
         $categories = $group->categories()->orderBy('name')->get();

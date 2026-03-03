@@ -57,90 +57,110 @@
                 </form>
             </div>
 
-            <!-- Transactions Table -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
-                        <thead class="bg-gray-50 border-b border-gray-100">
-                            <tr>
-                                <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Fecha</th>
-                                <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">
-                                    Descripción</th>
-                                <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Categoría
-                                </th>
-                                <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Cuenta
-                                </th>
-                                <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Tipo</th>
-                                <th class="text-right px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Monto
-                                </th>
-                                <th class="px-6 py-3"></th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-50">
-                            @forelse($transactions as $txn)
-                                <tr class="hover:bg-gray-50/50 transition">
-                                    <td class="px-6 py-4 text-gray-600 whitespace-nowrap">{{ $txn->date->format('d/m/Y') }}
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="font-medium text-gray-800">
-                                            {{ $txn->description ?: ($txn->concept?->name ?: '-') }}
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <span
-                                            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium"
-                                            style="background-color: {{ $txn->category->color }}15; color: {{ $txn->category->color }}">
-                                            <span class="w-2 h-2 rounded-full"
-                                                style="background-color: {{ $txn->category->color }}"></span>
-                                            {{ $txn->category->name }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-gray-600">{{ $txn->sourceAccount->name }}</td>
-                                    <td class="px-6 py-4">
-                                        @php
-                                            $typeLabels = ['income' => ['Ingreso', 'bg-emerald-100 text-emerald-700'], 'expense' => ['Gasto', 'bg-rose-100 text-rose-700'], 'transfer' => ['Transferencia', 'bg-blue-100 text-blue-700'], 'savings' => ['Ahorro', 'bg-cyan-100 text-cyan-700'], 'adjustment' => ['Ajuste', 'bg-gray-100 text-gray-700']];
-                                            $tl = $typeLabels[$txn->type] ?? ['Otro', 'bg-gray-100 text-gray-500'];
-                                        @endphp
-                                        <span
-                                            class="px-2.5 py-1 rounded-lg text-xs font-medium {{ $tl[1] }}">{{ $tl[0] }}</span>
-                                    </td>
-                                    <td
-                                        class="px-6 py-4 text-right font-bold whitespace-nowrap {{ $txn->type === 'income' ? 'text-emerald-600' : 'text-gray-800' }}">
-                                        {{ $txn->type === 'income' ? '+' : '-' }}${{ number_format($txn->amount, 2) }}
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center gap-2">
-                                            <a href="{{ route('transactions.edit', [$group, $txn]) }}"
-                                                class="text-indigo-600 hover:text-indigo-800 text-xs font-medium">Editar</a>
-                                            <form method="POST" action="{{ route('transactions.destroy', [$group, $txn]) }}"
-                                                data-confirm="Se eliminará el movimiento '{{ $txn->description ?: ($txn->concept?->name ?: 'sin descripción') }}' por ${{ number_format($txn->amount, 2) }}."
-                                                data-title="¿Eliminar movimiento?" data-btn-text="Sí, eliminar">
-                                                @csrf @method('DELETE')
-                                                <button type="submit"
-                                                    class="text-rose-500 hover:text-rose-700 text-xs font-medium">Eliminar</button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="7" class="px-6 py-12 text-center text-gray-400">
-                                        No hay movimientos registrados.
-                                        <a href="{{ route('transactions.create', $group) }}"
-                                            class="text-indigo-600 font-medium hover:underline ml-1">Crear uno →</a>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+            <!-- Transactions List -->
+            <div class="space-y-4">
+                @forelse($transactions as $txn)
+                    <div
+                        class="bg-white hover:bg-gray-50/50 rounded-2xl shadow-sm border border-gray-100 p-5 transition flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
+                        <!-- Date & Description -->
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span
+                                    class="text-sm font-medium text-gray-500 whitespace-nowrap">{{ $txn->date->format('d/m/Y') }}</span>
+                                @php
+                                    $typeLabels = ['income' => ['Ingreso', 'bg-emerald-100 text-emerald-700'], 'expense' => ['Gasto', 'bg-rose-100 text-rose-700'], 'transfer' => ['Transferencia', 'bg-blue-100 text-blue-700'], 'savings' => ['Ahorro', 'bg-cyan-100 text-cyan-700'], 'adjustment' => ['Ajuste', 'bg-gray-100 text-gray-700']];
+                                    $tl = $typeLabels[$txn->type] ?? ['Otro', 'bg-gray-100 text-gray-500'];
+                                @endphp
+                                <span
+                                    class="px-2 py-0.5 rounded-md text-[10px] uppercase tracking-wider font-bold {{ $tl[1] }}">{{ $tl[0] }}</span>
+                            </div>
+                            <h3 class="text-base font-semibold text-gray-900 truncate">
+                                {{ $txn->description ?: ($txn->concept?->name ?: '-') }}
+                            </h3>
+                            <div class="flex flex-wrap items-center gap-2 mt-2">
+                                <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium"
+                                    style="background-color: {{ $txn->category->color }}15; color: {{ $txn->category->color }}">
+                                    <span class="w-1.5 h-1.5 rounded-full"
+                                        style="background-color: {{ $txn->category->color }}"></span>
+                                    {{ $txn->category->name }}
+                                </span>
+                                <span
+                                    class="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-md">{{ $txn->sourceAccount->name }}</span>
+                            </div>
+                        </div>
 
-                @if($transactions->hasPages())
-                    <div class="px-6 py-4 bg-gray-50 border-t border-gray-100">
-                        {{ $transactions->links() }}
+                        <!-- Amount & Actions -->
+                        <div class="flex items-center justify-between md:flex-col md:items-end gap-3 mt-2 md:mt-0">
+                            <div
+                                class="text-lg font-bold whitespace-nowrap {{ $txn->type === 'income' ? 'text-emerald-600' : 'text-gray-900' }}">
+                                {{ $txn->type === 'income' ? '+' : '-' }}${{ number_format($txn->amount, 2) }}
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <a href="{{ route('transactions.edit', [$group, $txn]) }}"
+                                    class="px-3 py-1.5 text-xs font-bold text-indigo-600 bg-transparent border border-indigo-200 rounded-lg hover:bg-indigo-50 hover:border-indigo-300 transition-colors">
+                                    Editar
+                                </a>
+                                <form method="POST" action="{{ route('transactions.destroy', [$group, $txn]) }}"
+                                    data-confirm="Se eliminará el movimiento '{{ $txn->description ?: ($txn->concept?->name ?: 'sin descripción') }}' por ${{ number_format($txn->amount, 2) }}."
+                                    data-title="¿Eliminar movimiento?" data-btn-text="Sí, eliminar">
+                                    @csrf @method('DELETE')
+                                    <button type="submit"
+                                        class="px-3 py-1.5 text-xs font-bold text-rose-600 bg-transparent border border-rose-200 rounded-lg hover:bg-rose-50 hover:border-rose-300 transition-colors">
+                                        Eliminar
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
-                @endif
+                @empty
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-50 mb-4">
+                            <svg class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                            </svg>
+                        </div>
+                        <h3 class="text-sm font-medium text-gray-900">No hay movimientos</h3>
+                        <p class="mt-1 text-sm text-gray-500">Aún no has registrado ningún movimiento con estos filtros.</p>
+                        <a href="{{ route('transactions.create', $group) }}"
+                            class="inline-flex items-center justify-center mt-4 px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition">
+                            Crear movimiento →
+                        </a>
+                    </div>
+                @endforelse
             </div>
+
+            @if($transactions->hasPages())
+                <div class="mt-8 flex items-center justify-center gap-4">
+                    {{-- Previous Page Link --}}
+                    @if ($transactions->onFirstPage())
+                        <span class="p-2 rounded-lg bg-gray-50/50 border border-transparent text-gray-300 cursor-not-allowed">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                        </span>
+                    @else
+                        <a href="{{ $transactions->previousPageUrl() }}" class="p-2 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors shadow-sm">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                        </a>
+                    @endif
+
+                    {{-- Pagination Indicator --}}
+                    <span class="text-sm text-gray-600 font-medium px-4">
+                        Página {{ $transactions->currentPage() }} de {{ $transactions->lastPage() }}
+                    </span>
+
+                    {{-- Next Page Link --}}
+                    @if ($transactions->hasMorePages())
+                        <a href="{{ $transactions->nextPageUrl() }}" class="p-2 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors shadow-sm">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </a>
+                    @else
+                        <span class="p-2 rounded-lg bg-gray-50/50 border border-transparent text-gray-300 cursor-not-allowed">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </span>
+                    @endif
+                </div>
+            @endif
         </div>
     </div>
 </x-app-layout>
