@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -248,6 +250,60 @@ class DashboardController extends Controller
         // Active debts
         $activeDebts = $group->debts()->active()->get();
 
+        // Budget configuration for income comparison
+        $budgetConfig = $group->getBudgetConfiguration();
+        $configuredIncome = (float) $budgetConfig->total_monthly_income;
+        $configuredFixedIncome = (float) $budgetConfig->fixed_monthly_income;
+
+        // 12-month income/expense/savings data
+        $twelveMonthsAgo = Carbon::now()->subMonths(11)->startOfMonth();
+
+        $monthlyData = $group->transactions()
+            ->confirmed()
+            ->where('date', '>=', $twelveMonthsAgo)
+            ->select(
+                DB::raw("DATE_FORMAT(date, '%Y-%m') as period"),
+                DB::raw("SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) as income"),
+                DB::raw("SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) as expenses"),
+                DB::raw("SUM(CASE WHEN type = 'savings' THEN amount ELSE 0 END) as savings")
+            )
+            ->groupBy('period')
+            ->orderBy('period')
+            ->get()
+            ->keyBy('period');
+
+        // Build 12-month chart data (fill missing months with 0)
+        $chartLabels = [];
+        $chartIncome = [];
+        $chartExpenses = [];
+        $chartSavings = [];
+        $totalIncomeSum = 0;
+        $monthsWithIncome = 0;
+
+        for ($i = 11; $i >= 0; $i--) {
+            $date = Carbon::now()->subMonths($i);
+            $period = $date->format('Y-m');
+            $chartLabels[] = $date->translatedFormat('M Y');
+
+            $data = $monthlyData->get($period);
+            $inc = $data ? (float) $data->income : 0;
+            $exp = $data ? (float) $data->expenses : 0;
+            $sav = $data ? (float) $data->savings : 0;
+
+            $chartIncome[] = $inc;
+            $chartExpenses[] = $exp;
+            $chartSavings[] = $sav;
+
+            if ($inc > 0) {
+                $totalIncomeSum += $inc;
+                $monthsWithIncome++;
+            }
+        }
+
+        $avgIncome12m = $monthsWithIncome > 0 ? $totalIncomeSum / $monthsWithIncome : 0;
+        $incomeDiff = $configuredIncome > 0 ? $avgIncome12m - $configuredIncome : 0;
+        $incomeDiffPercent = $configuredIncome > 0 ? round(($incomeDiff / $configuredIncome) * 100, 1) : 0;
+
         return view('dashboard', compact(
             'group',
             'accounts',
@@ -273,6 +329,16 @@ class DashboardController extends Controller
             'q2Pending',
             'q1Paid',
             'q2Paid',
+            'budgetConfig',
+            'configuredIncome',
+            'configuredFixedIncome',
+            'avgIncome12m',
+            'incomeDiff',
+            'incomeDiffPercent',
+            'chartLabels',
+            'chartIncome',
+            'chartExpenses',
+            'chartSavings',
         ));
     }
 }

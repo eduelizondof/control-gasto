@@ -21,6 +21,8 @@ class BudgetConfigurationController extends Controller
         $configuration = $group->getBudgetConfiguration();
 
         $validator = Validator::make($request->all(), [
+            'fixed_monthly_income' => 'nullable|numeric|min:0',
+            'total_monthly_income' => 'nullable|numeric|min:0',
             'necessities_percentage' => 'required|numeric|min:0|max:100',
             'debts_percentage' => 'required|numeric|min:0|max:100',
             'future_percentage' => 'required|numeric|min:0|max:100',
@@ -44,7 +46,11 @@ class BudgetConfigurationController extends Controller
                 ->withInput();
         }
 
-        $configuration->update($validator->validated());
+        $validated = $validator->validated();
+        $validated['fixed_monthly_income'] = $validated['fixed_monthly_income'] ?? 0;
+        $validated['total_monthly_income'] = $validated['total_monthly_income'] ?? 0;
+
+        $configuration->update($validated);
 
         return redirect()->route('budget-configurations.index', $group)
             ->with('success', 'Configuración de presupuesto actualizada correctamente.');

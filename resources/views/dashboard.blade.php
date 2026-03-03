@@ -340,6 +340,68 @@
                 </div>
             </div>
 
+            {{-- Income Comparison & Monthly Chart --}}
+            @if($configuredIncome > 0 || $avgIncome12m > 0)
+            <div class="grid lg:grid-cols-3 gap-6 mb-8">
+                {{-- Income Comparison --}}
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                        Ingreso: Config vs Real
+                    </h3>
+
+                    <div class="space-y-4">
+                        @if($configuredFixedIncome > 0)
+                        <div class="p-3 bg-gray-50 rounded-xl">
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Ingreso Fijo Configurado</p>
+                            <p class="text-xl font-black text-gray-800">${{ number_format($configuredFixedIncome, 2) }}</p>
+                        </div>
+                        @endif
+
+                        @if($configuredIncome > 0)
+                        <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-100">
+                            <p class="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1">Ingreso Total Configurado</p>
+                            <p class="text-xl font-black text-emerald-700">${{ number_format($configuredIncome, 2) }}</p>
+                        </div>
+                        @endif
+
+                        <div class="p-3 bg-indigo-50 rounded-xl border border-indigo-100">
+                            <p class="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-1">Promedio Real (12 meses)</p>
+                            <p class="text-xl font-black text-indigo-700">${{ number_format($avgIncome12m, 2) }}</p>
+                        </div>
+
+                        @if($configuredIncome > 0 && $avgIncome12m > 0)
+                        <div class="p-3 rounded-xl {{ $incomeDiff >= 0 ? 'bg-emerald-50 border border-emerald-100' : 'bg-rose-50 border border-rose-100' }}">
+                            <div class="flex items-center justify-between">
+                                <p class="text-sm font-bold {{ $incomeDiff >= 0 ? 'text-emerald-700' : 'text-rose-700' }}">
+                                    {{ $incomeDiff >= 0 ? '▲' : '▼' }} {{ abs($incomeDiffPercent) }}%
+                                </p>
+                                <p class="text-xs {{ $incomeDiff >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">
+                                    {{ $incomeDiff >= 0 ? '+' : '-' }}${{ number_format(abs($incomeDiff), 2) }}/mes
+                                </p>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">
+                                {{ $incomeDiff >= 0 ? 'Ingresas más de lo configurado' : 'Ingresas menos de lo configurado' }}
+                            </p>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+
+                {{-- Monthly Bar Chart --}}
+                <div class="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
+                        Ingresos vs Gastos vs Ahorro
+                    </h3>
+                    <div class="relative" style="height: 320px;">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            @endif
+
+
             <!-- Active Debts -->
             @if($activeDebts->isNotEmpty())
                 <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
@@ -366,4 +428,99 @@
             @endif
         </div>
     </div>
+
+    @if(($configuredIncome ?? 0) > 0 || ($avgIncome12m ?? 0) > 0)
+    @push('scripts')
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('monthlyChart');
+        if (!ctx) return;
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: @json($chartLabels),
+                datasets: [
+                    {
+                        label: 'Ingresos',
+                        data: @json($chartIncome),
+                        backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                        borderColor: 'rgb(16, 185, 129)',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                    },
+                    {
+                        label: 'Gastos',
+                        data: @json($chartExpenses),
+                        backgroundColor: 'rgba(244, 63, 94, 0.8)',
+                        borderColor: 'rgb(244, 63, 94)',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                    },
+                    {
+                        label: 'Ahorro',
+                        data: @json($chartSavings),
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                        borderColor: 'rgb(59, 130, 246)',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    mode: 'index',
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            pointStyle: 'rectRounded',
+                            padding: 20,
+                            font: { family: 'Inter', size: 12, weight: '600' }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        titleFont: { family: 'Inter', size: 13 },
+                        bodyFont: { family: 'Inter', size: 12 },
+                        padding: 12,
+                        cornerRadius: 10,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': $' + 
+                                    context.parsed.y.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            font: { family: 'Inter', size: 10 },
+                            maxRotation: 45,
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0,0,0,0.05)' },
+                        ticks: {
+                            font: { family: 'Inter', size: 11 },
+                            callback: function(value) {
+                                return '$' + value.toLocaleString('en-US');
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+    </script>
+    @endpush
+    @endif
 </x-app-layout>

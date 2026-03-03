@@ -20,6 +20,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -148,6 +151,7 @@
             });
         })();
     </script>
+    @stack('scripts')
 </body>
 
 </html>

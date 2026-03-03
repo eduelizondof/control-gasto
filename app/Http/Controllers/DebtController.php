@@ -13,7 +13,49 @@ class DebtController extends Controller
         $debts = $group->debts()->with('account')->orderByDesc('created_at')->get();
         $debtLimits = $group->debtLimits()->get();
 
-        return view('debts.index', compact('group', 'debts', 'debtLimits'));
+        // Budget configuration for debt capacity
+        $budgetConfig = $group->getBudgetConfiguration();
+        $totalIncome = (float) $budgetConfig->total_monthly_income;
+        $debtPercent = (float) $budgetConfig->debts_percentage;
+        $debtCapacity = $totalIncome * $debtPercent / 100;
+
+        // Active debts calculations
+        $activeDebts = $debts->where('status', 'active');
+        $totalMonthlyPayments = $activeDebts->sum('payment_amount');
+        $availableCapacity = $debtCapacity - $totalMonthlyPayments;
+        $usedPercent = $debtCapacity > 0 ? min(100, round(($totalMonthlyPayments / $debtCapacity) * 100)) : 0;
+
+        // Capacity timeline: when each debt frees up capacity
+        $capacityTimeline = $activeDebts
+            ->filter(fn($d) => $d->end_date && $d->payment_amount > 0)
+            ->sortBy('end_date')
+            ->values()
+            ->map(function ($debt) use (&$availableCapacity, $debtCapacity) {
+                // This builds a running total of available capacity after each debt ends
+                return (object) [
+                    'date' => $debt->end_date,
+                    'name' => $debt->name,
+                    'freed_amount' => (float) $debt->payment_amount,
+                    'remaining_payments' => $debt->total_payments
+                        ? max(0, $debt->total_payments - $debt->payments_made)
+                        : null,
+                ];
+            });
+
+        // Calculate running capacity
+        $runningCapacity = $debtCapacity - $totalMonthlyPayments;
+        $capacityTimeline = $capacityTimeline->map(function ($item) use (&$runningCapacity) {
+            $runningCapacity += $item->freed_amount;
+            $item->available_after = $runningCapacity;
+            return $item;
+        });
+
+        return view('debts.index', compact(
+            'group', 'debts', 'debtLimits',
+            'budgetConfig', 'totalIncome', 'debtPercent', 'debtCapacity',
+            'totalMonthlyPayments', 'availableCapacity', 'usedPercent',
+            'capacityTimeline'
+        ));
     }
 
     public function create(Group $group)

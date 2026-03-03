@@ -12,6 +12,8 @@ class BudgetConfiguration extends Model
 
     protected $fillable = [
         'group_id',
+        'fixed_monthly_income',
+        'total_monthly_income',
         'necessities_percentage',
         'debts_percentage',
         'future_percentage',
