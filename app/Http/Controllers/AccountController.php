@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Account;
 use App\Models\Group;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 
 class AccountController extends Controller
@@ -46,9 +47,43 @@ class AccountController extends Controller
             ->with('success', 'Cuenta creada exitosamente.');
     }
 
-    public function edit(Group $group, Account $account)
+    public function edit(Request $request, Group $group, Account $account)
     {
-        return view('accounts.edit', compact('group', 'account'));
+        $query = Transaction::where(function($q) use ($account) {
+                $q->where('source_account_id', $account->id)
+                  ->orWhere('destination_account_id', $account->id);
+            });
+
+        if ($request->filled('search')) {
+            $searchTerm = '%' . $request->search . '%';
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('description', 'like', $searchTerm)
+                  ->orWhere('notes', 'like', $searchTerm)
+                  ->orWhereHas('concept', function($cq) use ($searchTerm) {
+                      $cq->where('name', 'like', $searchTerm);
+                  });
+            });
+        }
+
+        $transactions = $query->with(['category', 'concept', 'sourceAccount', 'destinationAccount'])
+            ->orderByDesc('date')
+            ->orderByDesc('id')
+            ->paginate(10)
+            ->withQueryString();
+
+        $monthlyIncome = Transaction::where('destination_account_id', $account->id)
+            ->where('type', 'income')
+            ->whereMonth('date', now()->month)
+            ->whereYear('date', now()->year)
+            ->sum('amount');
+
+        $monthlyExpenses = Transaction::where('source_account_id', $account->id)
+            ->where('type', 'expense')
+            ->whereMonth('date', now()->month)
+            ->whereYear('date', now()->year)
+            ->sum('amount');
+
+        return view('accounts.edit', compact('group', 'account', 'transactions', 'monthlyIncome', 'monthlyExpenses'));
     }
 
     public function update(Request $request, Group $group, Account $account)

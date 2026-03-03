@@ -51,7 +51,7 @@ class DashboardController extends Controller
 
         // Recent transactions
         $recentTransactions = $group->transactions()
-            ->with(['category', 'sourceAccount', 'concept'])
+            ->with(['category', 'sourceAccount', 'destinationAccount', 'concept'])
             ->confirmed()
             ->orderByDesc('date')
             ->orderByDesc('created_at')

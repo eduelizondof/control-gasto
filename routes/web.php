@@ -49,7 +49,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::resource('accounts', AccountController::class)->except(['show']);
             Route::resource('categories', CategoryController::class)->except(['show']);
             Route::resource('concepts', ConceptController::class)->except(['show']);
-            Route::resource('transactions', TransactionController::class)->except(['show']);
+            Route::resource('transactions', TransactionController::class);
             Route::resource('budgets', BudgetController::class)->except(['show'])
                 ->parameter('budgets', 'budget');
             Route::post('budgets/{budget}/items', [BudgetController::class, 'addItem'])->name('budgets.add-item');

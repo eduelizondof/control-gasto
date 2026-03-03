@@ -75,6 +75,9 @@
         </main>
     </div>
 
+    {{-- Floating Transaction Details Modal --}}
+    <x-transaction-modal />
+
     {{-- Bottom Navigation --}}
     @include('layouts.navigation')
 

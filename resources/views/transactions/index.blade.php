@@ -13,49 +13,86 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Filters -->
             <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6">
-                <form method="GET" action="{{ route('transactions.index', $group) }}"
-                    class="grid grid-cols-2 md:grid-cols-5 gap-4">
-                    <div>
-                        <label class="text-xs text-gray-500 font-medium">Tipo</label>
-                        <select name="type"
-                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            <option value="">Todos</option>
-                            @foreach(['income' => 'Ingreso', 'expense' => 'Gasto', 'transfer' => 'Transferencia', 'savings' => 'Ahorro'] as $val => $label)
-                                <option value="{{ $val }}" {{ request('type') === $val ? 'selected' : '' }}>{{ $label }}
-                                </option>
-                            @endforeach
-                        </select>
+                <form method="GET" action="{{ route('transactions.index', $group) }}">
+                    <div class="mb-4">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                            <input type="text" name="search" id="txnSearchInput" value="{{ request('search') }}"
+                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                placeholder="Buscar por concepto, descripción o notas...">
+                        </div>
                     </div>
-                    <div>
-                        <label class="text-xs text-gray-500 font-medium">Categoría</label>
-                        <select name="category_id"
-                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            <option value="">Todas</option>
-                            @foreach($categories as $cat)
-                                <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>
-                                    {{ $cat->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-500 font-medium">Desde</label>
-                        <input type="date" name="date_from" value="{{ request('date_from') }}"
-                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-500 font-medium">Hasta</label>
-                        <input type="date" name="date_to" value="{{ request('date_to') }}"
-                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
-                    </div>
-                    <div class="flex items-end gap-2">
-                        <button type="submit"
-                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition w-full">Filtrar</button>
-                        <a href="{{ route('transactions.index', $group) }}"
-                            class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-lg text-sm border border-gray-200 hover:bg-gray-50 transition">Limpiar</a>
-                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                        <div>
+                            <label class="text-xs text-gray-500 font-medium">Tipo</label>
+                            <select name="type"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="">Todos</option>
+                                @foreach(['income' => 'Ingreso', 'expense' => 'Gasto', 'transfer' => 'Transferencia', 'savings' => 'Ahorro'] as $val => $label)
+                                    <option value="{{ $val }}" {{ request('type') === $val ? 'selected' : '' }}>{{ $label }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-500 font-medium">Categoría</label>
+                            <select name="category_id"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="">Todas</option>
+                                @foreach($categories as $cat)
+                                    <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>
+                                        {{ $cat->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-500 font-medium">Desde</label>
+                            <input type="date" name="date_from" value="{{ request('date_from') }}"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-500 font-medium">Hasta</label>
+                            <input type="date" name="date_to" value="{{ request('date_to') }}"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        </div>
+                        <div class="flex items-end gap-2">
+                            <button type="submit"
+                                class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition w-full">Filtrar</button>
+                            <a href="{{ route('transactions.index', $group) }}"
+                                class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-lg text-sm border border-gray-200 hover:bg-gray-50 transition">Limpiar</a>
+                        </div>
                 </form>
             </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const searchInput = document.getElementById('txnSearchInput');
+                    if (searchInput) {
+                        let timeout = null;
+                        searchInput.addEventListener('input', function () {
+                            clearTimeout(timeout);
+                            timeout = setTimeout(() => {
+                                this.form.submit();
+                            }, 500);
+                        });
+
+                        if (searchInput.value) {
+                            const len = searchInput.value.length;
+                            setTimeout(() => {
+                                searchInput.focus();
+                                searchInput.setSelectionRange(len, len);
+                            }, 10);
+                        }
+                    }
+                });
+            </script>
 
             <!-- Transactions List -->
             <div class="space-y-4">
@@ -122,7 +159,8 @@
                             </svg>
                         </div>
                         <h3 class="text-sm font-medium text-gray-900">No hay movimientos</h3>
-                        <p class="mt-1 text-sm text-gray-500">Aún no has registrado ningún movimiento con estos filtros.</p>
+                        <p class="mt-1 text-sm text-gray-500">Aún no has registrado ningún movimiento con estos filtros.
+                        </p>
                         <a href="{{ route('transactions.create', $group) }}"
                             class="inline-flex items-center justify-center mt-4 px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition">
                             Crear movimiento →
@@ -136,11 +174,18 @@
                     {{-- Previous Page Link --}}
                     @if ($transactions->onFirstPage())
                         <span class="p-2 rounded-lg bg-gray-50/50 border border-transparent text-gray-300 cursor-not-allowed">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
+                                </path>
+                            </svg>
                         </span>
                     @else
-                        <a href="{{ $transactions->previousPageUrl() }}" class="p-2 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors shadow-sm">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                        <a href="{{ $transactions->previousPageUrl() }}"
+                            class="p-2 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors shadow-sm">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
+                                </path>
+                            </svg>
                         </a>
                     @endif
 
@@ -151,12 +196,19 @@
 
                     {{-- Next Page Link --}}
                     @if ($transactions->hasMorePages())
-                        <a href="{{ $transactions->nextPageUrl() }}" class="p-2 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors shadow-sm">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        <a href="{{ $transactions->nextPageUrl() }}"
+                            class="p-2 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors shadow-sm">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
+                                </path>
+                            </svg>
                         </a>
                     @else
                         <span class="p-2 rounded-lg bg-gray-50/50 border border-transparent text-gray-300 cursor-not-allowed">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
+                                </path>
+                            </svg>
                         </span>
                     @endif
                 </div>

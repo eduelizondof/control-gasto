@@ -44,6 +44,17 @@ class TransactionController extends Controller
             $query->where('date', '<=', $request->date_to);
         }
 
+        if ($request->filled('search')) {
+            $searchTerm = '%' . $request->search . '%';
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('description', 'like', $searchTerm)
+                  ->orWhere('notes', 'like', $searchTerm)
+                  ->orWhereHas('concept', function($cq) use ($searchTerm) {
+                      $cq->where('name', 'like', $searchTerm);
+                  });
+            });
+        }
+
         $transactions = $query->orderByDesc('date')
             ->orderByDesc('created_at')
             ->paginate(10)
@@ -159,5 +170,40 @@ class TransactionController extends Controller
 
         return redirect()->route('transactions.index', $group)
             ->with('success', 'Movimiento eliminado exitosamente.');
+    }
+    public function show(Group $group, Transaction $transaction)
+    {
+        // Ensure the transaction belongs to the group
+        if ($transaction->group_id !== $group->id) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $transaction->load(['category', 'sourceAccount', 'destinationAccount', 'concept']);
+
+        return response()->json([
+            'id' => $transaction->id,
+            'description' => $transaction->description ?: ($transaction->concept?->name ?: $transaction->category->name),
+            'amount' => number_format((float) $transaction->amount, 2),
+            'type' => $transaction->type,
+            'typeLabel' => match($transaction->type) { 
+                'income' => 'Ingreso', 
+                'expense' => 'Gasto', 
+                'transfer' => 'Transferencia', 
+                'savings' => 'Ahorro', 
+                'adjustment' => 'Ajuste', 
+                default => 'Otro' 
+            },
+            'date' => $transaction->date ? \Carbon\Carbon::parse($transaction->date)->format('d/m/Y') : '',
+            'categoryName' => $transaction->category->name,
+            'categoryColor' => $transaction->category->color,
+            'categoryIcon' => $transaction->category->icon,
+            'categoryIconUrl' => ($transaction->category->icon && str_contains($transaction->category->icon, '/')) ? \Illuminate\Support\Facades\Storage::url($transaction->category->icon) : null,
+            'sourceAccount' => $transaction->sourceAccount->name,
+            'destinationAccount' => $transaction->destinationAccount?->name ?? '',
+            'receipt' => $transaction->receipt_path ? \Illuminate\Support\Facades\Storage::url($transaction->receipt_path) : '',
+            'receiptIsImage' => $transaction->receipt_path && preg_match('/\.(jpg|jpeg|png)$/i', $transaction->receipt_path) ? true : false,
+            'notes' => $transaction->notes ?? '',
+            'editUrl' => route('transactions.edit', [$group, $transaction])
+        ]);
     }
 }
