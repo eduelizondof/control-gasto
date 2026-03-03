@@ -27,6 +27,7 @@ class Transaction extends Model
         'status',
         'notes',
         'receipt_url',
+        'receipt_path',
         'debt_id',
         'reminder_id',
         'source',

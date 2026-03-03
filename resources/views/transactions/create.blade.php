@@ -8,7 +8,7 @@
     <div class="py-6">
         <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-                <form method="POST"
+                <form method="POST" enctype="multipart/form-data"
                     action="{{ isset($transaction) ? route('transactions.update', [$group, $transaction]) : route('transactions.store', $group) }}">
                     @csrf
                     @if(isset($transaction)) @method('PUT') @endif
@@ -113,6 +113,24 @@
                             <textarea id="notes" name="notes" rows="2"
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                 placeholder="Notas adicionales...">{{ old('notes', $transaction->notes ?? '') }}</textarea>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <x-input-label for="receipt" value="Comprobante o ticket (Opcional - Imagen, PDF, Doc)" />
+                            <input type="file" id="receipt" name="receipt" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                                class="mt-1 block w-full text-sm text-gray-500
+                                file:mr-4 file:py-2 file:px-4
+                                file:rounded-md file:border-0
+                                file:text-sm file:font-semibold
+                                file:bg-indigo-50 file:text-indigo-700
+                                hover:file:bg-indigo-100 border border-gray-300 rounded-md
+                                focus:border-indigo-500 focus:ring-indigo-500" />
+                            @if(isset($transaction) && $transaction->receipt_path)
+                                <div class="mt-2 text-sm text-gray-600">
+                                    Archivo actual: <a href="{{ Storage::url($transaction->receipt_path) }}" target="_blank" class="text-indigo-600 hover:underline">Ver adjunto</a>
+                                </div>
+                            @endif
+                            <x-input-error :messages="$errors->get('receipt')" class="mt-2" />
                         </div>
                     </div>
 

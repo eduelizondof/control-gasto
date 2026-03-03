@@ -76,7 +76,12 @@ class TransactionController extends Controller
             'destination_account_id' => 'nullable|exists:accounts,id',
             'amount' => 'required|numeric|min:0.01',
             'notes' => 'nullable|string',
+            'receipt' => 'nullable|file|mimes:jpeg,png,jpg,pdf,doc,docx|max:5120',
         ]);
+
+        if ($request->hasFile('receipt')) {
+            $validated['receipt_path'] = $request->file('receipt')->store('receipts', 'public');
+        }
 
         $validated['group_id'] = $group->id;
         $validated['user_id'] = $request->user()->id;
@@ -111,7 +116,15 @@ class TransactionController extends Controller
             'destination_account_id' => 'nullable|exists:accounts,id',
             'amount' => 'required|numeric|min:0.01',
             'notes' => 'nullable|string',
+            'receipt' => 'nullable|file|mimes:jpeg,png,jpg,pdf,doc,docx|max:5120',
         ]);
+
+        if ($request->hasFile('receipt')) {
+            if ($transaction->receipt_path) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($transaction->receipt_path);
+            }
+            $validated['receipt_path'] = $request->file('receipt')->store('receipts', 'public');
+        }
 
         $this->transactionService->update($transaction, $validated);
 
