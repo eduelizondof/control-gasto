@@ -9,11 +9,20 @@
             <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 mb-6">
                 <form method="POST" action="{{ route('budgets.update', [$group, $budget]) }}">
                     @csrf @method('PUT')
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
                             <x-input-label for="name" value="Nombre del presupuesto" />
                             <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $budget->name)" required />
                             <x-input-error :messages="$errors->get('name')" class="mt-2" />
+                        </div>
+                        <div>
+                            <x-input-label for="year" value="Año" />
+                            <select id="year" name="year" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                                @for($i = date('Y') - 1; $i <= date('Y') + 5; $i++)
+                                    <option value="{{ $i }}" {{ old('year', $budget->year ?? date('Y')) == $i ? 'selected' : '' }}>{{ $i }}</option>
+                                @endfor
+                            </select>
+                            <x-input-error :messages="$errors->get('year')" class="mt-2" />
                         </div>
                         <div class="flex items-end gap-4">
                             <label class="flex items-center gap-2">

@@ -9,18 +9,21 @@ use Illuminate\Http\Request;
 
 class BudgetController extends Controller
 {
-    public function index(Group $group)
+    public function index(Request $request, Group $group)
     {
+        $year = $request->get('year', date('Y'));
+
         $budgets = $group->monthlyBudgets()
+            ->where('year', $year)
             ->with(['items' => fn($q) => $q->with(['category', 'concept', 'account'])->orderBy('sort_order')])
             ->orderByDesc('is_active')
             ->orderByDesc('created_at')
             ->get();
 
-        // Calculate actual spending per concept and category for this month
+        // Calculate actual spending per concept and category for this year
         $expensesByConcept = $group->transactions()
             ->confirmed()
-            ->thisMonth()
+            ->whereYear('date', $year)
             ->where(function ($q) {
                 $q->where('type', 'savings')
                   ->orWhere(function ($sq) {
@@ -37,7 +40,7 @@ class BudgetController extends Controller
 
         $expensesByCategory = $group->transactions()
             ->confirmed()
-            ->thisMonth()
+            ->whereYear('date', $year)
             ->where(function ($q) {
                 $q->where('type', 'savings')
                   ->orWhere(function ($sq) {
@@ -65,7 +68,7 @@ class BudgetController extends Controller
             }
         }
 
-        return view('budgets.index', compact('group', 'budgets'));
+        return view('budgets.index', compact('group', 'budgets', 'year'));
     }
 
     public function create(Group $group)
@@ -81,6 +84,7 @@ class BudgetController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:100',
+            'year' => 'required|integer|min:2000|max:2100',
             'is_active' => 'boolean',
             'items' => 'required|array|min:1',
             'items.*.category_id' => 'required|exists:categories,id',
@@ -100,6 +104,7 @@ class BudgetController extends Controller
         $budget = MonthlyBudget::create([
             'group_id' => $group->id,
             'name' => $validated['name'],
+            'year' => $validated['year'],
             'is_active' => $request->boolean('is_active', true),
         ]);
 
@@ -139,6 +144,7 @@ class BudgetController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:100',
+            'year' => 'required|integer|min:2000|max:2100',
             'is_active' => 'boolean',
         ]);
 
@@ -148,6 +154,7 @@ class BudgetController extends Controller
 
         $budget->update([
             'name' => $validated['name'],
+            'year' => $validated['year'],
             'is_active' => $request->boolean('is_active'),
         ]);
 

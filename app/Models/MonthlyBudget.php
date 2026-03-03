@@ -14,6 +14,7 @@ class MonthlyBudget extends Model
     protected $fillable = [
         'group_id',
         'name',
+        'year',
         'is_active',
     ];
 
