@@ -57,6 +57,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::delete('budgets/{budget}/items/{item}', [BudgetController::class, 'deleteItem'])->name('budgets.delete-item');
             Route::resource('debts', DebtController::class)->except(['show']);
             Route::resource('reminders', ReminderController::class)->except(['show']);
+
+            // Budget Configuration
+            Route::get('budget-configurations', [\App\Http\Controllers\BudgetConfigurationController::class, 'index'])->name('budget-configurations.index');
+            Route::patch('budget-configurations', [\App\Http\Controllers\BudgetConfigurationController::class, 'update'])->name('budget-configurations.update');
         });
 
     // Notifications

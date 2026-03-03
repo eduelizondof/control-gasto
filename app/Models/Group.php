@@ -92,6 +92,21 @@ class Group extends Model
         return $this->hasMany(MonthlyBudget::class);
     }
 
+    public function budgetConfiguration(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(BudgetConfiguration::class);
+    }
+
+    /**
+     * Get the current budget configuration or create it with defaults.
+     */
+    public function getBudgetConfiguration()
+    {
+        return $this->budgetConfiguration()->firstOrCreate([
+            'group_id' => $this->id,
+        ]);
+    }
+
     public function periodSnapshots(): HasMany
     {
         return $this->hasMany(PeriodSnapshot::class);
