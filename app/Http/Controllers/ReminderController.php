@@ -21,10 +21,11 @@ class ReminderController extends Controller
     public function create(Group $group)
     {
         $accounts = $group->accounts()->active()->get();
+        $categories = $group->categories()->orderBy('name')->get();
         $concepts = $group->concepts()->orderBy('name')->get();
         $debts = $group->debts()->active()->get();
 
-        return view('reminders.create', compact('group', 'accounts', 'concepts', 'debts'));
+        return view('reminders.create', compact('group', 'accounts', 'categories', 'concepts', 'debts'));
     }
 
     public function store(Request $request, Group $group)
@@ -56,10 +57,11 @@ class ReminderController extends Controller
     public function edit(Group $group, Reminder $reminder)
     {
         $accounts = $group->accounts()->active()->get();
+        $categories = $group->categories()->orderBy('name')->get();
         $concepts = $group->concepts()->orderBy('name')->get();
         $debts = $group->debts()->active()->get();
 
-        return view('reminders.edit', compact('group', 'reminder', 'accounts', 'concepts', 'debts'));
+        return view('reminders.edit', compact('group', 'reminder', 'accounts', 'categories', 'concepts', 'debts'));
     }
 
     public function update(Request $request, Group $group, Reminder $reminder)
@@ -68,6 +70,7 @@ class ReminderController extends Controller
             'name' => 'required|string|max:150',
             'type' => 'required|in:fixed_payment,card_cutoff,annuity,expiration,debt,custom',
             'account_id' => 'nullable|exists:accounts,id',
+            'category_id' => 'nullable|exists:categories,id',
             'debt_id' => 'nullable|exists:debts,id',
             'concept_id' => 'nullable|exists:concepts,id',
             'estimated_amount' => 'nullable|numeric|min:0',

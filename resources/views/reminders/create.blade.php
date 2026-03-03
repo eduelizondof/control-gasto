@@ -51,6 +51,32 @@
                         </div>
 
                         <div>
+                            <x-input-label for="category_id" value="Categoría" />
+                            <select id="category_id" name="category_id"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="">Sin categoría</option>
+                                @foreach($categories as $cat)
+                                    <option value="{{$cat->id}}"
+                                        {{old('category_id', $reminder->category_id ?? '') == $cat->id ? 'selected' : ''}}>
+                                        {{$cat->name}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <x-input-label for="concept_id" value="Concepto" />
+                            <select id="concept_id" name="concept_id"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="">Sin concepto</option>
+                                @foreach($concepts as $con)
+                                    <option value="{{$con->id}}" data-category="{{ $con->category_id }}"
+                                        {{old('concept_id', $reminder->concept_id ?? '') == $con->id ? 'selected' : ''}}>
+                                        {{$con->name}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
                             <x-input-label for="account_id" value="Cuenta" />
                             <select id="account_id" name="account_id"
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">

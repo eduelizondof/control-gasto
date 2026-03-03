@@ -37,6 +37,59 @@
                     </a>
                 </div>
             @endif
+            <!-- Quincena Analysis & Savings Tips -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div class="bg-indigo-900 rounded-2xl p-6 text-white shadow-lg overflow-hidden relative">
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </div>
+                            <h3 class="text-lg font-bold">Consejo de Ahorro Quincenal</h3>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-indigo-200 text-xs uppercase font-bold tracking-wider mb-1">Monto a guardar</p>
+                                <p class="text-2xl font-black">${{ number_format($budgetTotal / 2, 2) }}</p>
+                                <p class="text-indigo-300 text-[10px] mt-1">Por quincena para cubrir presupuesto</p>
+                            </div>
+                            <div class="bg-white/10 rounded-xl p-3 border border-white/10">
+                                <p class="text-indigo-100 text-[10px] font-bold uppercase mb-1">Carga de Gastos</p>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between items-center text-xs">
+                                        <span>1a Quincena:</span>
+                                        <span class="font-bold">${{ number_format($q1Load, 0) }}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-xs">
+                                        <span>2a Quincena:</span>
+                                        <span class="font-bold">${{ number_format($q2Load, 0) }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/5 rounded-full"></div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 border {{ $q1Load > $q2Load ? 'border-amber-200 bg-amber-50/30' : 'border-indigo-100' }} flex items-center gap-4">
+                    <div class="w-12 h-12 {{ $q1Load > $q2Load ? 'bg-amber-100 text-amber-600' : 'bg-indigo-100 text-indigo-600' }} rounded-2xl flex items-center justify-center shrink-0">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-800">Situación del Mes</h4>
+                        <p class="text-sm text-gray-600 mt-1">
+                            @if($q1Load > $q2Load)
+                                <span class="text-amber-700 font-semibold">La primera quincena viene más cargada.</span> Intenta guardar un extra de la quincena anterior si es posible.
+                            @elseif($q2Load > $q1Load)
+                                <span class="text-indigo-700 font-semibold">La segunda quincena tiene más pagos registrados.</span> Aprovecha la primera para asegurar el ahorro.
+                            @else
+                                La carga de pagos está equilibrada este mes.
+                            @endif
+                        </p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Summary Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <!-- Total Balance -->
@@ -245,15 +298,19 @@
                     </div>
                     <div class="space-y-4">
                         @forelse($upcomingReminders as $reminder)
-                            <div class="flex items-center gap-3 p-3 rounded-xl bg-amber-50/50 border border-amber-100/50">
-                                <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center shrink-0">
-                                    <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <div class="flex items-center gap-3 p-3 rounded-xl border {{ $reminder->next_date && $reminder->next_date->isToday() ? 'bg-rose-50 border-rose-100' : 'bg-amber-50/50 border-amber-100/50' }}">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background-color: {{ $reminder->category?->color ?? '#fef3c7' }}{{ $reminder->category?->color ? '20' : '' }}">
+                                    @if($reminder->category)
+                                        <div class="w-3 h-3 rounded-full" style="background-color: {{ $reminder->category->color }}"></div>
+                                    @else
+                                        <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    @endif
                                 </div>
                                 <div class="min-w-0">
                                     <div class="font-medium text-gray-800 text-sm truncate">{{ $reminder->name }}</div>
                                     <div class="text-gray-400 text-xs">{{ $reminder->next_date?->translatedFormat('d M Y') }}</div>
                                     @if($reminder->estimated_amount)
-                                        <div class="text-amber-600 text-xs font-semibold">${{ number_format($reminder->estimated_amount, 2) }}</div>
+                                        <div class="text-indigo-600 text-xs font-bold leading-none mt-1">${{ number_format($reminder->estimated_amount, 2) }}</div>
                                     @endif
                                 </div>
                             </div>

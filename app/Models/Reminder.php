@@ -13,6 +13,7 @@ class Reminder extends Model
 
     protected $fillable = [
         'group_id',
+        'category_id',
         'name',
         'type',
         'account_id',
@@ -61,6 +62,11 @@ class Reminder extends Model
     public function concept(): BelongsTo
     {
         return $this->belongsTo(Concept::class);
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
     }
 
     // ── Scopes ──

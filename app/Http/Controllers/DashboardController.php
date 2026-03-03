@@ -59,12 +59,54 @@ class DashboardController extends Controller
             ->get();
 
         // Upcoming reminders
-        $upcomingReminders = $group->reminders()
+        $upcomingRemindersRaw = $group->reminders()
             ->active()
+            ->with(['category', 'concept'])
             ->whereNotNull('next_date')
             ->orderBy('next_date')
-            ->take(5)
             ->get();
+
+        // Filter out reminders already paid this month
+        $thisMonthTransactions = $group->transactions()
+            ->confirmed()
+            ->thisMonth()
+            ->get();
+
+        $upcomingReminders = $upcomingRemindersRaw->filter(function ($reminder) use ($thisMonthTransactions) {
+            // If it has both category and concept, skip if a transaction matches both
+            if ($reminder->category_id && $reminder->concept_id) {
+                return !$thisMonthTransactions->some(fn($t) => $t->category_id == $reminder->category_id && $t->concept_id == $reminder->concept_id);
+            }
+            // If it only has concept
+            if ($reminder->concept_id) {
+                return !$thisMonthTransactions->some(fn($t) => $t->concept_id == $reminder->concept_id);
+            }
+            // If it only has category
+            if ($reminder->category_id) {
+                return !$thisMonthTransactions->some(fn($t) => $t->category_id == $reminder->category_id);
+            }
+            return true;
+        })->take(5);
+
+        // Quincena Analysis
+        $remindersThisMonth = $group->reminders()
+            ->active()
+            ->whereNotNull('next_date')
+            ->whereYear('next_date', now()->year)
+            ->whereMonth('next_date', now()->month)
+            ->get();
+
+        $q1Load = 0;
+        $q2Load = 0;
+
+        foreach ($remindersThisMonth as $r) {
+            $day = $r->next_date->day;
+            if ($day <= 15) {
+                $q1Load += $r->estimated_amount;
+            } else {
+                $q2Load += $r->estimated_amount;
+            }
+        }
 
         // Budget info
         $activeBudget = $group->monthlyBudgets()->where('is_active', true)->first();
@@ -207,6 +249,8 @@ class DashboardController extends Controller
             'activeDebts',
             'currentPeriod',
             'pendingInvitationsCount',
+            'q1Load',
+            'q2Load',
         ));
     }
 }
