@@ -57,7 +57,7 @@ class DashboardController extends Controller
             ->confirmed()
             ->orderByDesc('date')
             ->orderByDesc('created_at')
-            ->take(10)
+            ->take(5)
             ->get();
 
         // Upcoming reminders

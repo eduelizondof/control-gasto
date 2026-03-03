@@ -172,14 +172,14 @@
                 </div>
 
                 <!-- Accounts -->
-                <div class="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                    <div class="flex items-center justify-between mb-4">
+                <div class="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col h-full">
+                    <div class="flex items-center justify-between mb-4 shrink-0">
                         <h3 class="text-lg font-bold text-gray-800">Mis Cuentas</h3>
                         <a href="{{ route('accounts.index', $group) }}" class="text-indigo-600 text-sm font-medium hover:underline">Ver todas →</a>
                     </div>
-                    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto max-h-[400px] pr-2 pb-1 custom-scrollbar">
                         @foreach($accounts as $account)
-                            <div class="rounded-xl p-4 border border-gray-100 hover:border-indigo-200 transition">
+                            <a href="{{ route('accounts.edit', [$group, $account]) }}" class="block rounded-xl p-4 border border-gray-100 hover:border-indigo-300 hover:shadow-md transition bg-white cursor-pointer group">
                                 <div class="flex items-center gap-3 mb-2">
                                     <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: {{ $account->color }}20">
                                         <span class="text-lg">
@@ -198,10 +198,10 @@
                                         <div class="text-gray-400 text-xs">{{ $account->type_labels }}</div>
                                     </div>
                                 </div>
-                                <div class="text-xl font-black {{ $account->current_balance >= 0 ? 'text-gray-900' : 'text-rose-600' }}">
+                                <div class="text-xl font-black mt-2 {{ $account->current_balance >= 0 ? 'text-gray-900 group-hover:text-indigo-700 transition-colors' : 'text-rose-600' }}">
                                     ${{ number_format($account->current_balance, 2) }}
                                 </div>
-                            </div>
+                            </a>
                         @endforeach
                     </div>
                 </div>
@@ -282,12 +282,12 @@
             <!-- Recent Transactions + Upcoming Reminders -->
             <div class="grid lg:grid-cols-3 gap-6 mb-8">
                 <!-- Recent Transactions -->
-                <div class="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-gray-100" x-data="{}">
-                    <div class="flex items-center justify-between mb-4">
+                <div class="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col h-full" x-data="{}">
+                    <div class="flex items-center justify-between mb-4 shrink-0">
                         <h3 class="text-lg font-bold text-gray-800">Últimos Movimientos</h3>
                         <a href="{{ route('transactions.index', $group) }}" class="text-indigo-600 text-sm font-medium hover:underline">Ver todos →</a>
                     </div>
-                    <div class="space-y-3">
+                    <div class="space-y-3 flex-1 flex flex-col justify-start">
                         @forelse($recentTransactions as $txn)
                             <div @click="$dispatch('open-transaction-modal', { id: {{ $txn->id }}, groupId: {{ $group->id }} })" 
                                 class="flex items-center justify-between py-2 px-2 -mx-2 rounded-xl cursor-pointer hover:bg-gray-50 transition {{ !$loop->last ? 'border-b border-gray-50' : '' }}">
@@ -311,12 +311,12 @@
                 </div>
 
                 <!-- Upcoming Reminders -->
-                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                    <div class="flex items-center justify-between mb-4">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col h-full">
+                    <div class="flex items-center justify-between mb-4 shrink-0">
                         <h3 class="text-lg font-bold text-gray-800">Próximos Pagos</h3>
                         <a href="{{ route('reminders.index', $group) }}" class="text-indigo-600 text-sm font-medium hover:underline">Ver todos →</a>
                     </div>
-                    <div class="space-y-4">
+                    <div class="space-y-4 flex-1 flex flex-col justify-start">
                         @forelse($upcomingReminders as $reminder)
                             <div class="flex items-center gap-3 p-3 rounded-xl border {{ $reminder->next_date && $reminder->next_date->isToday() ? 'bg-rose-50 border-rose-100' : 'bg-amber-50/50 border-amber-100/50' }}">
                                 <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background-color: {{ $reminder->category?->color ?? '#fef3c7' }}{{ $reminder->category?->color ? '20' : '' }}">

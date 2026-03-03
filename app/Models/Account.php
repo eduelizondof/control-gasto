@@ -25,6 +25,9 @@ class Account extends Model
         'credit_limit',
         'cutoff_day',
         'payment_day',
+        'annual_fee',
+        'annual_fee_month',
+        'notes',
         'color',
         'icon',
         'include_in_total',
@@ -40,6 +43,8 @@ class Account extends Model
             'estimated_balance' => 'decimal:2',
             'cutoff_balance' => 'decimal:2',
             'credit_limit' => 'decimal:2',
+            'annual_fee' => 'decimal:2',
+            'annual_fee_month' => 'integer',
             'include_in_total' => 'boolean',
             'is_active' => 'boolean',
         ];
@@ -87,7 +92,7 @@ class Account extends Model
             return null;
         }
 
-        return $this->credit_limit - abs($this->current_balance);
+        return (float) $this->credit_limit - abs((float) $this->current_balance);
     }
 
     public function getTypeLabelsAttribute(): string

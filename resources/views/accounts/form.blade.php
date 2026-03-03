@@ -92,7 +92,32 @@
                 <x-text-input id="payment_day" name="payment_day" type="number" min="1" max="31"
                     class="mt-1 block w-full" :value="old('payment_day', $account->payment_day ?? '')" />
             </div>
+            <div>
+                <x-input-label for="annual_fee" value="Costo de Anualidad" />
+                <x-text-input id="annual_fee" name="annual_fee" type="number" step="0.01" min="0"
+                    class="mt-1 block w-full" :value="old('annual_fee', $account->annual_fee ?? '')"
+                    placeholder="Ej: 1500" />
+            </div>
+            <div>
+                <x-input-label for="annual_fee_month" value="Mes de cobro de Anualidad" />
+                <select id="annual_fee_month" name="annual_fee_month"
+                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <option value="">Seleccionar...</option>
+                    @foreach([1 => 'Enero', 2 => 'Febrero', 3 => 'Marzo', 4 => 'Abril', 5 => 'Mayo', 6 => 'Junio', 7 => 'Julio', 8 => 'Agosto', 9 => 'Septiembre', 10 => 'Octubre', 11 => 'Noviembre', 12 => 'Diciembre'] as $val => $label)
+                        <option value="{{ $val }}" {{ old('annual_fee_month', $account->annual_fee_month ?? '') == $val ? 'selected' : '' }}>{{ $label }}</option>
+                    @endforeach
+                </select>
+            </div>
         </div>
+    </div>
+
+    <div class="mt-6">
+        <x-input-label for="notes" value="Notas (Opcional)" />
+        <textarea id="notes" name="notes" rows="3"
+            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            placeholder="Ej: Domicilio de registro, nombre exacto de la cuenta para bureau, especificaciones adicionales...">{{ old('notes', $account->notes ?? '') }}</textarea>
+        <p class="mt-1 text-xs text-gray-400">Puedes usar este espacio para anotar el nombre exacto de la cuenta,
+            domicilio o instrucciones de pago.</p>
     </div>
 
     <div class="mt-6 flex items-center gap-4">
