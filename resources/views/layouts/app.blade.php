@@ -33,6 +33,7 @@
         }
     </style>
     @include('layouts.seo')
+    @stack('styles')
 </head>
 
 <body class="font-sans antialiased">

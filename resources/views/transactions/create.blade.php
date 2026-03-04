@@ -127,7 +127,8 @@
                                 focus:border-indigo-500 focus:ring-indigo-500" />
                             @if(isset($transaction) && $transaction->receipt_path)
                                 <div class="mt-2 text-sm text-gray-600">
-                                    Archivo actual: <a href="{{ Storage::url($transaction->receipt_path) }}" target="_blank" class="text-indigo-600 hover:underline">Ver adjunto</a>
+                                    Archivo actual: <a href="{{ Storage::url($transaction->receipt_path) }}" target="_blank"
+                                        class="text-indigo-600 hover:underline">Ver adjunto</a>
                                 </div>
                             @endif
                             <x-input-error :messages="$errors->get('receipt')" class="mt-2" />
@@ -144,34 +145,91 @@
             </div>
         </div>
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const categorySelect = document.getElementById('category_id');
-            const conceptSelect = document.getElementById('concept_id');
-            const conceptsJson = @json($concepts->map(fn($c) => ['id' => $c->id, 'name' => $c->name, 'category_id' => $c->category_id]));
-
-            function filterConcepts(preserveSelection = false) {
-                const categoryId = categorySelect.value;
-                const currentSelection = conceptSelect.value;
-
-                conceptSelect.innerHTML = '<option value="">Sin concepto</option>';
-
-                if (categoryId) {
-                    const filteredConcepts = conceptsJson.filter(c => c.category_id == categoryId);
-                    filteredConcepts.forEach(c => {
-                        conceptSelect.insertAdjacentHTML('beforeend', `<option value="${c.id}">${c.name}</option>`);
-                    });
-                }
-
-                if (preserveSelection && currentSelection) {
-                    conceptSelect.value = currentSelection;
-                }
+    @push('styles')
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+        <style>
+            .select2-container--default .select2-selection--single {
+                border-color: #d1d5db !important;
+                border-radius: 0.5rem !important;
+                height: 42px !important;
+                display: flex !important;
+                align-items: center !important;
             }
 
-            categorySelect.addEventListener('change', () => filterConcepts(false));
+            .select2-container--default .select2-selection--single .select2-selection__arrow {
+                height: 40px !important;
+            }
 
-            // Filtrar en la carga inicial
-            filterConcepts(true);
-        });
-    </script>
+            .select2-container--default .select2-selection--single .select2-selection__rendered {
+                line-height: 40px !important;
+                color: #374151 !important;
+            }
+
+            .select2-container--default .select2-results__option--highlighted[aria-selected] {
+                background-color: #4f46e5 !important;
+            }
+
+            .select2-container--default .select2-search--dropdown .select2-search__field {
+                border-radius: 0.375rem !important;
+                border-color: #d1d5db !important;
+            }
+
+            .select2-dropdown {
+                border-color: #d1d5db !important;
+                border-radius: 0.5rem !important;
+                box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+            }
+        </style>
+    @endpush
+
+    @push('scripts')
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+        <script>
+            $(document).ready(function () {
+                // Inicializar Select2
+                $('#category_id, #concept_id, #source_account_id, #destination_account_id').select2({
+                    placeholder: 'Seleccionar...',
+                    allowClear: true,
+                    width: '100%',
+                    language: {
+                        noResults: function () {
+                            return "No se encontraron resultados";
+                        }
+                    }
+                });
+
+                const categorySelect = $('#category_id');
+                const conceptSelect = $('#concept_id');
+                const conceptsJson = @json($concepts->map(fn($c) => ['id' => $c->id, 'name' => $c->name, 'category_id' => $c->category_id]));
+
+                function filterConcepts(preserveSelection = false) {
+                    const categoryId = categorySelect.val();
+                    const currentSelection = conceptSelect.val();
+
+                    // Limpiar y resetear Select2 de concepto
+                    conceptSelect.empty().append('<option value="">Sin concepto</option>');
+
+                    if (categoryId) {
+                        const filteredConcepts = conceptsJson.filter(c => c.category_id == categoryId);
+                        filteredConcepts.forEach(c => {
+                            conceptSelect.append(new Option(c.name, c.id, false, false));
+                        });
+                    }
+
+                    if (preserveSelection && currentSelection) {
+                        conceptSelect.val(currentSelection);
+                    }
+
+                    // Refrescar Select2
+                    conceptSelect.trigger('change.select2');
+                }
+
+                categorySelect.on('change', () => filterConcepts(false));
+
+                // Filtrar en la carga inicial
+                filterConcepts(true);
+            });
+        </script>
+    @endpush
 </x-app-layout>

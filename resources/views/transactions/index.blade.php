@@ -28,11 +28,11 @@
                                 placeholder="Buscar por concepto, descripción o notas...">
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                         <div>
                             <label class="text-xs text-gray-500 font-medium">Tipo</label>
-                            <select name="type"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <select name="type" onchange="this.form.submit()"
+                                class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
                                 <option value="">Todos</option>
                                 @foreach(['income' => 'Ingreso', 'expense' => 'Gasto', 'transfer' => 'Transferencia', 'savings' => 'Ahorro'] as $val => $label)
                                     <option value="{{ $val }}" {{ request('type') === $val ? 'selected' : '' }}>{{ $label }}
@@ -42,8 +42,8 @@
                         </div>
                         <div>
                             <label class="text-xs text-gray-500 font-medium">Categoría</label>
-                            <select name="category_id"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <select name="category_id" onchange="this.form.submit()"
+                                class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
                                 <option value="">Todas</option>
                                 @foreach($categories as $cat)
                                     <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>
@@ -53,14 +53,28 @@
                             </select>
                         </div>
                         <div>
+                            <label class="text-xs text-gray-500 font-medium">Período</label>
+                            <select id="quick_filter"
+                                class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="">Directo...</option>
+                                <option value="today">Hoy</option>
+                                <option value="7_days">Últimos 7 días</option>
+                                <option value="30_days">Últimos 30 días</option>
+                                <option value="this_month">Este mes</option>
+                                <option value="last_month">Mes pasado</option>
+                                <option value="this_year">Este año</option>
+                                <option value="last_year">Año pasado</option>
+                            </select>
+                        </div>
+                        <div>
                             <label class="text-xs text-gray-500 font-medium">Desde</label>
-                            <input type="date" name="date_from" value="{{ request('date_from') }}"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <input type="date" name="date_from" id="date_from" value="{{ request('date_from') }}"
+                                class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
                         </div>
                         <div>
                             <label class="text-xs text-gray-500 font-medium">Hasta</label>
-                            <input type="date" name="date_to" value="{{ request('date_to') }}"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <input type="date" name="date_to" id="date_to" value="{{ request('date_to') }}"
+                                class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
                         </div>
                         <div class="flex items-end gap-2">
                             <button type="submit"
@@ -68,12 +82,18 @@
                             <a href="{{ route('transactions.index', $group) }}"
                                 class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-lg text-sm border border-gray-200 hover:bg-gray-50 transition">Limpiar</a>
                         </div>
+                    </div>
                 </form>
             </div>
 
             <script>
                 document.addEventListener('DOMContentLoaded', function () {
                     const searchInput = document.getElementById('txnSearchInput');
+                    const quickFilter = document.getElementById('quick_filter');
+                    const dateFrom = document.getElementById('date_from');
+                    const dateTo = document.getElementById('date_to');
+
+                    // Search input logic
                     if (searchInput) {
                         let timeout = null;
                         searchInput.addEventListener('input', function () {
@@ -90,6 +110,61 @@
                                 searchInput.setSelectionRange(len, len);
                             }, 10);
                         }
+                    }
+
+                    // Quick filter logic
+                    if (quickFilter) {
+                        quickFilter.addEventListener('change', function () {
+                            const val = this.value;
+                            if (!val) return;
+
+                            const today = new Date();
+                            const formatDate = (date) => {
+                                const y = date.getFullYear();
+                                const m = String(date.getMonth() + 1).padStart(2, '0');
+                                const d = String(date.getDate()).padStart(2, '0');
+                                return `${y}-${m}-${d}`;
+                            };
+
+                            let from, to;
+                            switch (val) {
+                                case 'today':
+                                    from = to = today;
+                                    break;
+                                case '7_days':
+                                    to = today;
+                                    from = new Date();
+                                    from.setDate(today.getDate() - 7);
+                                    break;
+                                case '30_days':
+                                    to = today;
+                                    from = new Date();
+                                    from.setDate(today.getDate() - 30);
+                                    break;
+                                case 'this_month':
+                                    from = new Date(today.getFullYear(), today.getMonth(), 1);
+                                    to = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                                    break;
+                                case 'last_month':
+                                    from = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                                    to = new Date(today.getFullYear(), today.getMonth(), 0);
+                                    break;
+                                case 'this_year':
+                                    from = new Date(today.getFullYear(), 0, 1);
+                                    to = new Date(today.getFullYear(), 11, 31);
+                                    break;
+                                case 'last_year':
+                                    from = new Date(today.getFullYear() - 1, 0, 1);
+                                    to = new Date(today.getFullYear() - 1, 11, 31);
+                                    break;
+                            }
+
+                            if (from && to) {
+                                dateFrom.value = formatDate(from);
+                                dateTo.value = formatDate(to);
+                                this.form.submit();
+                            }
+                        });
                     }
                 });
             </script>

@@ -44,6 +44,15 @@ class TransactionController extends Controller
             $query->where('date', '<=', $request->date_to);
         }
 
+        // Default to today if no date filter or search is present
+        if (!$request->filled('date_from') && !$request->filled('date_to') && !$request->filled('search')) {
+            $query->whereDate('date', today());
+            $request->merge([
+                'date_from' => today()->toDateString(),
+                'date_to' => today()->toDateString(),
+            ]);
+        }
+
         if ($request->filled('search')) {
             $searchTerm = '%' . $request->search . '%';
             $query->where(function($q) use ($searchTerm) {
