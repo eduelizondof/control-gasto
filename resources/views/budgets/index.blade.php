@@ -45,12 +45,12 @@
                                         class="bg-indigo-100 text-indigo-700 text-xs font-semibold px-2.5 py-1 rounded-lg">Activo</span>
                                 @endif
                             </div>
-                            <div class="flex flex-col gap-1.5 items-end">
+                            <div class="flex flex-col gap-1.5 items-start sm:items-end mt-2 sm:mt-0">
                                 <div class="flex items-baseline gap-1.5">
                                     <span class="text-2xl font-black text-gray-900">${{ number_format($totalMensual, 2) }}</span>
                                     <span class="text-gray-400 text-sm">/mes</span>
                                 </div>
-                                <div class="text-xs text-gray-500 font-medium whitespace-nowrap">
+                                <div class="text-xs text-gray-500 font-medium sm:whitespace-nowrap mt-1 sm:mt-0">
                                     Total Anual Mínimo: <span class="font-bold text-gray-700">${{ number_format($totalMensual * 12, 2) }}</span>
                                 </div>
                             </div>
@@ -139,8 +139,8 @@
                                     </div>
                                     {{-- Spent vs Budget (mobile) --}}
                                     @php $spent = $item->actual_spent ?? 0; $annualBudget = $item->monthly_amount * 12; $itemDiff = $annualBudget - $spent; @endphp
-                                    <div class="flex items-center justify-between text-xs border-t border-gray-50 pt-2">
-                                        <span class="text-gray-500">Gastado Anual: <span class="font-semibold text-gray-700">${{ number_format($spent, 2) }}</span> / ${{ number_format($annualBudget, 2) }}</span>
+                                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 text-xs border-t border-gray-50 pt-2">
+                                        <span class="text-gray-500">Gastado Año: <span class="font-semibold text-gray-700">${{ number_format($spent, 2) }}</span> / ${{ number_format($annualBudget, 2) }}</span>
                                         <span class="font-bold {{ $itemDiff >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">
                                             {{ $itemDiff >= 0 ? 'Disp: $' . number_format($itemDiff, 2) : 'Exceso: $' . number_format(abs($itemDiff), 2) }}
                                         </span>
@@ -149,17 +149,17 @@
                             @endforeach
                         </div>
 
-                        {{-- Total footer --}}
-                        <div class="px-5 sm:px-6 py-3 bg-gray-50/60 border-t border-gray-100">
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                                <span class="text-sm font-semibold text-gray-600">Total</span>
-                                <div class="flex items-center gap-6 text-sm">
-                                    <div><span class="text-gray-500 mr-2">Mensual:</span><span class="font-black text-gray-900">${{ number_format($totalMensual, 2) }}</span></div>
-                                    <div><span class="text-gray-500 mr-2">Anual:</span><span class="font-black text-indigo-700">${{ number_format($totalMensual * 12, 2) }}</span></div>
-                                    <div><span class="text-gray-500 mr-2">Gastado Anual:</span><span class="font-black text-gray-800">${{ number_format($budget->items->sum('actual_spent'), 2) }}</span></div>
-                                </div>
+                    {{-- Total footer --}}
+                    <div class="px-5 sm:px-6 py-4 bg-gray-50/60 border-t border-gray-100">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <span class="text-sm font-semibold text-gray-600 mb-2 sm:mb-0">Total</span>
+                            <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-sm w-full sm:w-auto">
+                                <div class="flex justify-between sm:block border-b border-gray-100 sm:border-0 pb-1 sm:pb-0"><span class="text-gray-500 mr-2">Mensual:</span><span class="font-black text-gray-900">${{ number_format($totalMensual, 2) }}</span></div>
+                                <div class="flex justify-between sm:block border-b border-gray-100 sm:border-0 pb-1 sm:pb-0"><span class="text-gray-500 mr-2">Anual:</span><span class="font-black text-indigo-700">${{ number_format($totalMensual * 12, 2) }}</span></div>
+                                <div class="flex justify-between sm:block"><span class="text-gray-500 mr-2">Gastado Anual:</span><span class="font-black text-gray-800">${{ number_format($budget->items->sum('actual_spent'), 2) }}</span></div>
                             </div>
                         </div>
+                    </div>
                     @endif
 
                     {{-- Acciones --}}
