@@ -93,6 +93,13 @@
                     const dateFrom = document.getElementById('date_from');
                     const dateTo = document.getElementById('date_to');
 
+                    const formatDate = (date) => {
+                        const y = date.getFullYear();
+                        const m = String(date.getMonth() + 1).padStart(2, '0');
+                        const d = String(date.getDate()).padStart(2, '0');
+                        return `${y}-${m}-${d}`;
+                    };
+
                     // Search input logic
                     if (searchInput) {
                         let timeout = null;
@@ -114,17 +121,17 @@
 
                     // Quick filter logic
                     if (quickFilter) {
+                        // Set the value of quickFilter based on the current date inputs (for the 'Hoy' default)
+                        const todayStr = formatDate(new Date());
+                        if (dateFrom.value === todayStr && dateTo.value === todayStr) {
+                            quickFilter.value = 'today';
+                        }
+
                         quickFilter.addEventListener('change', function () {
                             const val = this.value;
                             if (!val) return;
 
                             const today = new Date();
-                            const formatDate = (date) => {
-                                const y = date.getFullYear();
-                                const m = String(date.getMonth() + 1).padStart(2, '0');
-                                const d = String(date.getDate()).padStart(2, '0');
-                                return `${y}-${m}-${d}`;
-                            };
 
                             let from, to;
                             switch (val) {
@@ -208,6 +215,10 @@
                                 {{ $txn->type === 'income' ? '+' : '-' }}${{ number_format($txn->amount, 2) }}
                             </div>
                             <div class="flex items-center gap-2">
+                                <a href="{{ route('transactions.create', [$group, 'duplicate_id' => $txn->id]) }}"
+                                    class="px-3 py-1.5 text-xs font-bold text-gray-600 bg-transparent border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-colors">
+                                    Duplicar
+                                </a>
                                 <a href="{{ route('transactions.edit', [$group, $txn]) }}"
                                     class="px-3 py-1.5 text-xs font-bold text-indigo-600 bg-transparent border border-indigo-200 rounded-lg hover:bg-indigo-50 hover:border-indigo-300 transition-colors">
                                     Editar

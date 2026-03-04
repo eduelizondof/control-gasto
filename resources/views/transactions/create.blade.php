@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-2xl font-bold text-gray-800">
-            {{ isset($transaction) ? 'Editar Movimiento' : 'Nuevo Movimiento' }}
+            {{ (isset($transaction) && $transaction->exists) ? 'Editar Movimiento' : 'Nuevo Movimiento' }}
         </h2>
     </x-slot>
 
@@ -9,9 +9,9 @@
         <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
                 <form method="POST" enctype="multipart/form-data"
-                    action="{{ isset($transaction) ? route('transactions.update', [$group, $transaction]) : route('transactions.store', $group) }}">
+                    action="{{ (isset($transaction) && $transaction->exists) ? route('transactions.update', [$group, $transaction]) : route('transactions.store', $group) }}">
                     @csrf
-                    @if(isset($transaction)) @method('PUT') @endif
+                    @if(isset($transaction) && $transaction->exists) @method('PUT') @endif
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>

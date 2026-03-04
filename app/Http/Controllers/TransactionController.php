@@ -36,12 +36,15 @@ class TransactionController extends Controller
             });
         }
 
-        if ($request->filled('date_from')) {
-            $query->where('date', '>=', $request->date_from);
-        }
+        // Apply date filters only if NOT searching (to search in all history)
+        if (!$request->filled('search')) {
+            if ($request->filled('date_from')) {
+                $query->where('date', '>=', $request->date_from);
+            }
 
-        if ($request->filled('date_to')) {
-            $query->where('date', '<=', $request->date_to);
+            if ($request->filled('date_to')) {
+                $query->where('date', '<=', $request->date_to);
+            }
         }
 
         // Default to today if no date filter or search is present
@@ -75,13 +78,24 @@ class TransactionController extends Controller
         return view('transactions.index', compact('group', 'transactions', 'categories', 'accounts'));
     }
 
-    public function create(Group $group)
+    public function create(Request $request, Group $group)
     {
+        $transaction = null;
+        if ($request->filled('duplicate_id')) {
+            $sourceTxn = $group->transactions()->find($request->duplicate_id);
+            if ($sourceTxn) {
+                $transaction = $sourceTxn->replicate();
+                $transaction->date = now();
+                $transaction->time = now()->format('H:i');
+                $transaction->receipt_path = null;
+            }
+        }
+
         $categories = $group->categories()->orderBy('type')->orderBy('name')->get();
         $accounts = $group->accounts()->active()->orderBy('name')->get();
         $concepts = $group->concepts()->orderBy('name')->get();
 
-        return view('transactions.create', compact('group', 'categories', 'accounts', 'concepts'));
+        return view('transactions.create', compact('group', 'categories', 'accounts', 'concepts', 'transaction'));
     }
 
     public function store(Request $request, Group $group)
@@ -212,7 +226,8 @@ class TransactionController extends Controller
             'receipt' => $transaction->receipt_path ? \Illuminate\Support\Facades\Storage::url($transaction->receipt_path) : '',
             'receiptIsImage' => $transaction->receipt_path && preg_match('/\.(jpg|jpeg|png)$/i', $transaction->receipt_path) ? true : false,
             'notes' => $transaction->notes ?? '',
-            'editUrl' => route('transactions.edit', [$group, $transaction])
+            'editUrl' => route('transactions.edit', [$group, $transaction]),
+            'duplicateUrl' => route('transactions.create', [$group, 'duplicate_id' => $transaction->id])
         ]);
     }
 }
