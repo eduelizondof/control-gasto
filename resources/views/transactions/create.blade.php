@@ -9,7 +9,8 @@
         <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
                 <form method="POST" enctype="multipart/form-data"
-                    action="{{ (isset($transaction) && $transaction->exists) ? route('transactions.update', [$group, $transaction]) : route('transactions.store', $group) }}">
+                    action="{{ (isset($transaction) && $transaction->exists) ? route('transactions.update', [$group, $transaction]) : route('transactions.store', $group) }}"
+                    x-data="{ submitting: false }" @submit="submitting = true">
                     @csrf
                     @if(isset($transaction) && $transaction->exists) @method('PUT') @endif
 
@@ -138,8 +139,13 @@
                     <div class="flex justify-end gap-3 mt-8">
                         <a href="{{ route('transactions.index', $group) }}"
                             class="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium text-sm">Cancelar</a>
-                        <x-primary-button>{{ isset($transaction) ? 'Actualizar' : 'Registrar' }}
-                            Movimiento</x-primary-button>
+                        <x-primary-button x-bind:disabled="submitting"
+                            x-bind:class="{ 'opacity-75 cursor-not-allowed': submitting }">
+                            <span
+                                x-show="!submitting">{{ (isset($transaction) && $transaction->exists) ? 'Actualizar' : 'Registrar' }}
+                                Movimiento</span>
+                            <span x-show="submitting" style="display: none;">Guardando...</span>
+                        </x-primary-button>
                     </div>
                 </form>
             </div>
