@@ -94,6 +94,8 @@ class BudgetController extends Controller
             'items.*.frequency' => 'required|in:monthly,bimonthly,quarterly,semiannual,annual',
             'items.*.account_id' => 'nullable|exists:accounts,id',
             'items.*.is_fixed' => 'boolean',
+            'items.*.payment_month' => 'nullable|integer|min:1|max:12',
+            'items.*.payment_day' => 'nullable|integer|min:1|max:31',
         ]);
 
         // Deactivate other budgets if this one is active
@@ -111,7 +113,7 @@ class BudgetController extends Controller
         foreach ($validated['items'] as $index => $itemData) {
             $divisor = BudgetItem::frequencyDivisor($itemData['frequency']);
 
-            BudgetItem::create([
+            $budgetItem = BudgetItem::create([
                 'monthly_budget_id' => $budget->id,
                 'category_id' => $itemData['category_id'],
                 'concept_id' => $itemData['concept_id'] ?? null,
@@ -122,7 +124,11 @@ class BudgetController extends Controller
                 'account_id' => $itemData['account_id'] ?? null,
                 'is_fixed' => $itemData['is_fixed'] ?? true,
                 'sort_order' => $index,
+                'payment_month' => $itemData['payment_month'] ?? null,
+                'payment_day' => $itemData['payment_day'] ?? null,
             ]);
+
+            $this->syncReminder($group->id, $budgetItem, $budget->year);
         }
 
         return redirect()->route('budgets.index', $group)
@@ -178,12 +184,14 @@ class BudgetController extends Controller
             'concept_id' => 'nullable|exists:concepts,id',
             'estimated_amount' => 'required|numeric|min:0',
             'frequency' => 'required|in:monthly,bimonthly,quarterly,semiannual,annual',
+            'payment_month' => 'nullable|integer|min:1|max:12',
+            'payment_day' => 'nullable|integer|min:1|max:31',
         ]);
 
         $divisor = BudgetItem::frequencyDivisor($validated['frequency']);
         $maxSort = $budget->items()->max('sort_order') ?? 0;
 
-        BudgetItem::create([
+        $budgetItem = BudgetItem::create([
             'monthly_budget_id' => $budget->id,
             'category_id' => $validated['category_id'],
             'concept_id' => $validated['concept_id'] ?? null,
@@ -191,7 +199,11 @@ class BudgetController extends Controller
             'frequency' => $validated['frequency'],
             'monthly_amount' => round($validated['estimated_amount'] / $divisor, 2),
             'sort_order' => $maxSort + 1,
+            'payment_month' => $validated['payment_month'] ?? null,
+            'payment_day' => $validated['payment_day'] ?? null,
         ]);
+
+        $this->syncReminder($group->id, $budgetItem, $budget->year);
 
         return redirect()->route('budgets.edit', [$group, $budget])
             ->with('success', 'Item agregado exitosamente.');
@@ -202,6 +214,8 @@ class BudgetController extends Controller
         $validated = $request->validate([
             'estimated_amount' => 'required|numeric|min:0',
             'frequency' => 'required|in:monthly,bimonthly,quarterly,semiannual,annual',
+            'payment_month' => 'nullable|integer|min:1|max:12',
+            'payment_day' => 'nullable|integer|min:1|max:31',
         ]);
 
         $divisor = BudgetItem::frequencyDivisor($validated['frequency']);
@@ -210,7 +224,11 @@ class BudgetController extends Controller
             'estimated_amount' => $validated['estimated_amount'],
             'frequency' => $validated['frequency'],
             'monthly_amount' => round($validated['estimated_amount'] / $divisor, 2),
+            'payment_month' => $validated['payment_month'] ?? null,
+            'payment_day' => $validated['payment_day'] ?? null,
         ]);
+
+        $this->syncReminder($group->id, $item, $budget->year);
 
         return redirect()->route('budgets.edit', [$group, $budget])
             ->with('success', 'Item actualizado exitosamente.');
@@ -222,5 +240,62 @@ class BudgetController extends Controller
 
         return redirect()->route('budgets.edit', [$group, $budget])
             ->with('success', 'Item eliminado exitosamente.');
+    }
+
+    private function syncReminder($groupId, BudgetItem $item, $year)
+    {
+        if ($item->payment_day) {
+            $name = $item->custom_name ?? ($item->concept_id ? $item->concept->name : $item->category->name);
+            $name .= ' (Presupuesto)';
+
+            $attributes = [
+                'name' => $name,
+                'type' => 'custom',
+                'account_id' => $item->account_id,
+                'estimated_amount' => $item->estimated_amount,
+                'frequency' => $item->frequency,
+                'auto_create_transaction' => false,
+                'is_active' => $item->is_active ?? true,
+            ];
+
+            if (in_array($item->frequency, ['annual', 'semiannual']) && $item->payment_month) {
+                // If it's a specific date in the budget year
+                try {
+                    $date = \Carbon\Carbon::createFromDate($year, $item->payment_month, $item->payment_day);
+                    $attributes['specific_date'] = $date->format('Y-m-d');
+                    
+                    if ($date->year < now()->year || ($date->year == now()->year && $date->month < now()->month)) {
+                        // Already passed this year, point to next iteration if it's recurring
+                        if ($item->frequency === 'annual') {
+                            $date->addYear();
+                        } elseif ($item->frequency === 'semiannual') {
+                            $date->addMonths(6);
+                        }
+                    }
+                    $attributes['next_date'] = $date->format('Y-m-d');
+                    $attributes['day_of_month'] = null;
+                } catch (\Exception $e) {
+                    // Ignore date errors
+                }
+            } else {
+                $attributes['day_of_month'] = $item->payment_day;
+                $attributes['specific_date'] = null;
+                $day = min((int) $item->payment_day, 28);
+                $next = now()->day($day);
+                if ($next->isPast()) {
+                    $next->addMonth();
+                }
+                $attributes['next_date'] = $next->format('Y-m-d');
+            }
+
+            \App\Models\Reminder::updateOrCreate(
+                [
+                    'group_id' => $groupId,
+                    'category_id' => $item->category_id,
+                    'concept_id' => $item->concept_id,
+                ],
+                $attributes
+            );
+        }
     }
 }

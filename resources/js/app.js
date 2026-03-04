@@ -13,8 +13,3 @@ document.addEventListener('livewire:navigating', () => {
     pace.restart();
 });
 
-import Alpine from 'alpinejs';
-
-window.Alpine = Alpine;
-
-Alpine.start();

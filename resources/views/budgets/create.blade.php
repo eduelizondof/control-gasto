@@ -45,60 +45,95 @@
                     @if(!isset($budget))
                         {{-- Budget Items (only on create) --}}
                         <div class="border-t border-gray-100 pt-6">
-                            <div class="flex items-center justify-between mb-4">
-                                <h3 class="text-lg font-bold text-gray-800">Items del Presupuesto</h3>
+                            <div class="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-2">
+                                <div>
+                                    <h3 class="text-lg font-bold text-gray-800">Items del Presupuesto</h3>
+                                    <p class="text-xs text-indigo-600 font-medium flex items-center gap-1 mt-1">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M13 16h-1v-4h-1m1-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        Se creará un recordatorio automático si estableces un día de pago.
+                                    </p>
+                                </div>
                                 <button type="button" id="add-item-btn"
-                                    class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">
+                                    class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition shrink-0">
                                     + Agregar Item
                                 </button>
                             </div>
 
                             <div id="items-container">
                                 <div class="budget-item bg-gray-50 rounded-xl p-4 mb-3" data-index="0">
-                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                         <div>
                                             <label class="text-xs text-gray-500 font-medium">Categoría</label>
-                                            <div>
-                                                <label class="text-xs text-gray-500 font-medium">Categoría</label>
-                                                <select name="items[0][category_id]"
-                                                    class="category-select mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                                    required>
-                                                    <option value="">Seleccionar...</option>
-                                                    @foreach($categories as $cat)
-                                                        <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <label class="text-xs text-gray-500 font-medium">Concepto (Opcional)</label>
-                                                <select name="items[0][concept_id]"
-                                                    class="concept-select mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:opacity-50"
-                                                    disabled>
-                                                    <option value="">General de categoría...</option>
-                                                    {{-- Opciones por JS --}}
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <label class="text-xs text-gray-500 font-medium">Monto estimado</label>
-                                                <input type="number" step="0.01" name="items[0][estimated_amount]"
-                                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                                    required>
-                                            </div>
-                                            <div>
-                                                <label class="text-xs text-gray-500 font-medium">Frecuencia</label>
-                                                <select name="items[0][frequency]"
-                                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                                    <option value="monthly">Mensual</option>
-                                                    <option value="bimonthly">Bimestral</option>
-                                                    <option value="quarterly">Trimestral</option>
-                                                    <option value="semiannual">Semestral</option>
-                                                    <option value="annual">Anual</option>
-                                                </select>
-                                            </div>
+                                            <select name="items[0][category_id]"
+                                                class="category-select mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                required>
+                                                <option value="">Seleccionar...</option>
+                                                @foreach($categories as $cat)
+                                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                                @endforeach
+                                            </select>
                                         </div>
-                                        <div class="mt-2 flex justify-end">
+                                        <div>
+                                            <label class="text-xs text-gray-500 font-medium">Concepto (Opcional)</label>
+                                            <select name="items[0][concept_id]"
+                                                class="concept-select mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:opacity-50"
+                                                disabled>
+                                                <option value="">General de categoría...</option>
+                                                {{-- Opciones por JS --}}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="text-xs text-gray-500 font-medium">Monto estimado</label>
+                                            <input type="number" step="0.01" name="items[0][estimated_amount]"
+                                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                required>
+                                        </div>
+                                        <div>
+                                            <label class="text-xs text-gray-500 font-medium">Frecuencia</label>
+                                            <select name="items[0][frequency]"
+                                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                                <option value="monthly">Mensual</option>
+                                                <option value="bimonthly">Bimestral</option>
+                                                <option value="quarterly">Trimestral</option>
+                                                <option value="semiannual">Semestral</option>
+                                                <option value="annual">Anual</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="text-xs text-gray-500 font-medium">Mes de Pago</label>
+                                            <select name="items[0][payment_month]"
+                                                class="payment-month-select mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:opacity-50"
+                                                disabled>
+                                                <option value="">N/A</option>
+                                                <option value="1">Enero</option>
+                                                <option value="2">Febrero</option>
+                                                <option value="3">Marzo</option>
+                                                <option value="4">Abril</option>
+                                                <option value="5">Mayo</option>
+                                                <option value="6">Junio</option>
+                                                <option value="7">Julio</option>
+                                                <option value="8">Agosto</option>
+                                                <option value="9">Septiembre</option>
+                                                <option value="10">Octubre</option>
+                                                <option value="11">Noviembre</option>
+                                                <option value="12">Diciembre</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="text-xs text-gray-500 font-medium"
+                                                title="Para auto-agendar recordatorio">Día de Pago (Opc.)</label>
+                                            <input type="number" min="1" max="31" name="items[0][payment_day]"
+                                                placeholder="Ej: 15"
+                                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                        </div>
+                                        <div
+                                            class="mt-2 flex items-end justify-end col-span-1 sm:col-span-2 lg:col-span-3 border-t pt-3">
                                             <button type="button"
-                                                class="remove-item text-rose-500 text-xs hover:underline hidden">Eliminar</button>
+                                                class="remove-item text-rose-500 text-xs font-semibold hover:text-rose-700 hover:underline hidden">❌
+                                                Eliminar Item</button>
                                         </div>
                                     </div>
                                 </div>
@@ -129,33 +164,43 @@
                 addBtn.addEventListener('click', function () {
                     const catOptions = categoriesJson.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
                     const html = `
-                                <div class="budget-item bg-gray-50 rounded-xl p-4 mb-3" data-index="${itemIndex}">
-                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                        <div>
-                                            <label class="text-xs text-gray-500 font-medium">Categoría</label>
-                                            <select name="items[${itemIndex}][category_id]" class="category-select mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500" required><option value="">Seleccionar...</option>${catOptions}</select>
-                                        </div>
-                                        <div>
-                                            <label class="text-xs text-gray-500 font-medium">Concepto (Opcional)</label>
-                                            <select name="items[${itemIndex}][concept_id]" class="concept-select mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:opacity-50" disabled>
-                                                <option value="">General de categoría...</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label class="text-xs text-gray-500 font-medium">Monto estimado</label>
-                                            <input type="number" step="0.01" name="items[${itemIndex}][estimated_amount]" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500" required>
-                                        </div>
-                                        <div>
-                                            <label class="text-xs text-gray-500 font-medium">Frecuencia</label>
-                                            <select name="items[${itemIndex}][frequency]" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                                <option value="monthly">Mensual</option><option value="bimonthly">Bimestral</option><option value="quarterly">Trimestral</option><option value="semiannual">Semestral</option><option value="annual">Anual</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="mt-2 flex justify-end">
-                                        <button type="button" class="remove-item text-rose-500 text-xs hover:underline">Eliminar</button>
-                                    </div>
-                                </div>`;
+                                                <div class="budget-item bg-gray-50 rounded-xl p-4 mb-3" data-index="${itemIndex}">
+                                                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                        <div>
+                                                            <label class="text-xs text-gray-500 font-medium">Categoría</label>
+                                                            <select name="items[${itemIndex}][category_id]" class="category-select mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500" required><option value="">Seleccionar...</option>${catOptions}</select>
+                                                        </div>
+                                                        <div>
+                                                            <label class="text-xs text-gray-500 font-medium">Concepto (Opcional)</label>
+                                                            <select name="items[${itemIndex}][concept_id]" class="concept-select mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:opacity-50" disabled>
+                                                                <option value="">General de categoría...</option>
+                                                            </select>
+                                                        </div>
+                                                        <div>
+                                                            <label class="text-xs text-gray-500 font-medium">Monto estimado</label>
+                                                            <input type="number" step="0.01" name="items[${itemIndex}][estimated_amount]" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                                                        </div>
+                                                        <div>
+                                                            <label class="text-xs text-gray-500 font-medium">Frecuencia</label>
+                                                            <select name="items[${itemIndex}][frequency]" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                                                <option value="monthly">Mensual</option><option value="bimonthly">Bimestral</option><option value="quarterly">Trimestral</option><option value="semiannual">Semestral</option><option value="annual">Anual</option>
+                                                            </select>
+                                                        </div>
+                                                        <div>
+                                                            <label class="text-xs text-gray-500 font-medium">Mes de Pago</label>
+                                                            <select name="items[${itemIndex}][payment_month]" class="payment-month-select mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:opacity-50" disabled>
+                                                                <option value="">N/A</option><option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option><option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option><option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option><option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+                                                            </select>
+                                                        </div>
+                                                        <div>
+                                                            <label class="text-xs text-gray-500 font-medium" title="Para auto-agendar recordatorio">Día de Pago (Opc.)</label>
+                                                            <input type="number" min="1" max="31" name="items[${itemIndex}][payment_day]" placeholder="Ej: 15" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                                        </div>
+                                                    </div>
+                                                    <div class="mt-2 flex items-end justify-end col-span-1 border-t sm:col-span-2 lg:col-span-3 pt-3">
+                                                        <button type="button" class="remove-item text-rose-500 text-xs font-semibold hover:text-rose-700 hover:underline">❌ Eliminar Item</button>
+                                                    </div>
+                                                </div>`;
                     container.insertAdjacentHTML('beforeend', html);
                     itemIndex++;
                 });
@@ -176,6 +221,15 @@
                             conceptSelect.disabled = false;
                         } else {
                             conceptSelect.disabled = true;
+                        }
+                    } else if (e.target.name && e.target.name.includes('[frequency]')) {
+                        const row = e.target.closest('.budget-item');
+                        const monthSelect = row.querySelector('.payment-month-select');
+                        if (e.target.value === 'annual' || e.target.value === 'semiannual') {
+                            monthSelect.disabled = false;
+                        } else {
+                            monthSelect.disabled = true;
+                            monthSelect.value = '';
                         }
                     }
                 });

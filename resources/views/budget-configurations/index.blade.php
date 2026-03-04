@@ -243,6 +243,9 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Bonos Esperados Component -->
+                <livewire:budget-config.expected-bonuses :group="$group" />
             </div>
         </div>
     </div>

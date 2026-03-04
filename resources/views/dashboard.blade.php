@@ -4,7 +4,8 @@
             <div>
                 <h2 class="text-2xl font-bold text-gray-800 leading-tight">Panel de Control</h2>
                 <p class="text-sm text-gray-500 mt-1">{{ $group->name }} —
-                    {{ \Carbon\Carbon::now()->translatedFormat('F Y') }}</p>
+                    {{ \Carbon\Carbon::now()->translatedFormat('F Y') }}
+                </p>
             </div>
             <a href="{{ route('transactions.create', $group) }}"
                 class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition shadow-sm">
@@ -21,15 +22,20 @@
             <!-- Summary Cards -->
             <livewire:dashboard.summary-cards :group="$group" />
 
-            <!-- Budget vs Expenses + Accounts -->
+            <!-- Budget vs Expenses + Upcoming Big Payments -->
             <div class="grid lg:grid-cols-3 gap-6 mb-8">
                 <!-- Budget Overview -->
-                <livewire:dashboard.budget-overview :group="$group" />
-
-                <!-- Accounts -->
                 <div class="lg:col-span-2 h-full">
-                    <livewire:dashboard.account-list :group="$group" />
+                    <livewire:dashboard.budget-overview :group="$group" />
                 </div>
+
+                <!-- Big Payments & Bonuses -->
+                <livewire:dashboard.upcoming-big-payments :group="$group" />
+            </div>
+
+            <!-- Accounts -->
+            <div class="mb-8 h-full">
+                <livewire:dashboard.account-list :group="$group" />
             </div>
 
             <!-- Quincena Analysis & Savings Tips -->

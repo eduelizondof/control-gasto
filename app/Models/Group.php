@@ -92,6 +92,11 @@ class Group extends Model
         return $this->hasMany(MonthlyBudget::class);
     }
 
+    public function expectedBonuses(): HasMany
+    {
+        return $this->hasMany(ExpectedBonus::class);
+    }
+
     public function budgetConfiguration(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(BudgetConfiguration::class);

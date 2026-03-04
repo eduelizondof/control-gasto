@@ -26,6 +26,8 @@ class BudgetItem extends Model
         'notes',
         'sort_order',
         'is_active',
+        'payment_month',
+        'payment_day',
     ];
 
     protected function casts(): array
@@ -35,6 +37,8 @@ class BudgetItem extends Model
             'monthly_amount' => 'decimal:2',
             'is_fixed' => 'boolean',
             'is_active' => 'boolean',
+            'payment_month' => 'integer',
+            'payment_day' => 'integer',
         ];
     }
 
