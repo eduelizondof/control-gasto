@@ -5,7 +5,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            Pagos Fuertes vs. Bonos
+            Próximos Pagos vs. Bonos
         </h3>
     </div>
 
@@ -33,11 +33,11 @@
             </div>
         </div>
 
-        {{-- Pagos Fuertes --}}
+        {{-- Pagos --}}
         <div>
-            <h4 class="text-xs font-bold text-amber-600 uppercase tracking-wider mb-2">Próximos Pagos Fuertes</h4>
+            <h4 class="text-xs font-bold text-amber-600 uppercase tracking-wider mb-2">Próximos Pagos</h4>
             <div class="space-y-2">
-                @forelse($bigPayments as $payment)
+                @forelse($payments as $payment)
                     <div class="flex items-center justify-between p-2.5 rounded-xl bg-amber-50 border border-amber-100">
                         <div class="min-w-0">
                             <div class="font-bold text-amber-800 text-sm truncate">{{ $payment->name }}</div>
@@ -50,7 +50,7 @@
                         </span>
                     </div>
                 @empty
-                    <p class="text-gray-400 text-xs py-2">No hay pagos anuales/semestrales próximos.</p>
+                    <p class="text-gray-400 text-xs py-2">No hay pagos próximos.</p>
                 @endforelse
             </div>
         </div>

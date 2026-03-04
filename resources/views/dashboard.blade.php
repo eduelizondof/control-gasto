@@ -41,7 +41,7 @@
             <!-- Quincena Analysis & Savings Tips -->
             <livewire:dashboard.quincena-analysis :group="$group" />
 
-            <!-- Recent Transactions + Upcoming Reminders -->
+            <!-- Recent Transactions -->
             <livewire:dashboard.recent-activity :group="$group" />
 
             {{-- Income Comparison & Monthly Chart (Lazy Loading) --}}
