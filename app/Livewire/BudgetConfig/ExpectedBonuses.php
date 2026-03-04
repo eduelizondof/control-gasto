@@ -89,13 +89,23 @@ class ExpectedBonuses extends Component
         );
 
         $this->closeForm();
+        
+        $this->dispatchBonusesUpdate();
+
         session()->flash('success', 'Bono guardado exitosamente.');
     }
 
     public function delete($id)
     {
         ExpectedBonus::findOrFail($id)->delete();
+        $this->dispatchBonusesUpdate();
         session()->flash('success', 'Bono eliminado correctamente.');
+    }
+
+    private function dispatchBonusesUpdate()
+    {
+        $totalBonuses = $this->group->expectedBonuses()->where('is_active', true)->sum('amount');
+        $this->dispatch('bonuses-updated', monthlyBonus: $totalBonuses / 12);
     }
 
     public function render()

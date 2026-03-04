@@ -8,9 +8,14 @@
 
     <div class="py-6">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            @php
+                $totalBonuses = $group->expectedBonuses()->where('is_active', true)->sum('amount');
+                $monthlyBonus = $totalBonuses / 12;
+            @endphp
             <div class="grid lg:grid-cols-3 gap-6" x-data="{
                 fixedIncome: {{ old('fixed_monthly_income', $configuration->fixed_monthly_income) }},
                 totalIncome: {{ old('total_monthly_income', $configuration->total_monthly_income) }},
+                monthlyBonus: {{ $monthlyBonus }},
                 necessities: {{ old('necessities_percentage', $configuration->necessities_percentage) }},
                 debts: {{ old('debts_percentage', $configuration->debts_percentage) }},
                 future: {{ old('future_percentage', $configuration->future_percentage) }},
@@ -20,6 +25,9 @@
                            (parseFloat(this.debts) || 0) + 
                            (parseFloat(this.future) || 0) + 
                            (parseFloat(this.desires) || 0);
+                },
+                get suggestedTotal() {
+                    return (parseFloat(this.fixedIncome) || 0) + parseFloat(this.monthlyBonus);
                 },
                 formatMoney(amount) {
                     return '$' + (parseFloat(amount) || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
@@ -34,7 +42,7 @@
                     }
                     return this.formatMoney(fixed) + ' - ' + this.formatMoney(total);
                 }
-            }">
+            }" @bonuses-updated.window="monthlyBonus = $event.detail.monthlyBonus">
                 <!-- Configuración de Porcentajes -->
                 <div class="lg:col-span-2">
                     <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
@@ -87,7 +95,21 @@
                                             step="0.01" min="0"
                                             class="w-full rounded-xl border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 text-sm"
                                             placeholder="Ej: 35000 (con bonos, extras)">
-                                        <p class="mt-1 text-xs text-gray-400">Incluye bonos, comisiones, extras</p>
+                                        <div class="mt-2 flex flex-col gap-1.5">
+                                            <p class="text-xs text-gray-400">Incluye bonos, comisiones, extras</p>
+                                            <div x-show="monthlyBonus > 0" x-cloak
+                                                class="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 py-1.5 px-2.5 rounded border border-emerald-100">
+                                                <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M13 16h-1v-4h-1m1-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                                    </path>
+                                                </svg>
+                                                <span>Sugerido precalculado: <span
+                                                        x-text="formatMoney(suggestedTotal)"></span></span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
