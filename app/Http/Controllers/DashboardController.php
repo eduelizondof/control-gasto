@@ -302,8 +302,8 @@ class DashboardController extends Controller
         }
 
         $avgIncome12m = $monthsWithIncome > 0 ? $totalIncomeSum / $monthsWithIncome : 0;
-        $incomeDiff = $configuredIncome > 0 ? $avgIncome12m - $configuredIncome : 0;
-        $incomeDiffPercent = $configuredIncome > 0 ? round(($incomeDiff / $configuredIncome) * 100, 1) : 0;
+        $incomeDiff = $configuredFixedIncome > 0 ? $avgIncome12m - $configuredFixedIncome : 0;
+        $incomeDiffPercent = $configuredFixedIncome > 0 ? round(($incomeDiff / $configuredFixedIncome) * 100, 1) : 0;
 
         // Expenses by category 12 months (Pie chart)
         $expensesByCategory12m = $group->transactions()

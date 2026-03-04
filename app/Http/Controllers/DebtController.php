@@ -15,15 +15,20 @@ class DebtController extends Controller
 
         // Budget configuration for debt capacity
         $budgetConfig = $group->getBudgetConfiguration();
-        $totalIncome = (float) $budgetConfig->total_monthly_income;
+        $fixedIncome = (float) $budgetConfig->fixed_monthly_income;
+        $maxIncome = (float) $budgetConfig->total_monthly_income;
         $debtPercent = (float) $budgetConfig->debts_percentage;
-        $debtCapacity = $totalIncome * $debtPercent / 100;
+        
+        $debtCapacity = $fixedIncome * $debtPercent / 100;
+        $maxDebtCapacity = $maxIncome * $debtPercent / 100;
+        $totalIncome = $fixedIncome; // For backward compatibility in simple labels if needed
 
         // Active debts calculations
         $activeDebts = $debts->where('status', 'active');
         $totalMonthlyPayments = $activeDebts->sum('payment_amount');
         $availableCapacity = $debtCapacity - $totalMonthlyPayments;
         $usedPercent = $debtCapacity > 0 ? min(100, round(($totalMonthlyPayments / $debtCapacity) * 100)) : 0;
+        $maxUsedPercent = $maxDebtCapacity > 0 ? min(100, round(($totalMonthlyPayments / $maxDebtCapacity) * 100)) : 0;
 
         // Capacity timeline: when each debt frees up capacity
         $capacityTimeline = $activeDebts
@@ -52,8 +57,9 @@ class DebtController extends Controller
 
         return view('debts.index', compact(
             'group', 'debts', 'debtLimits',
-            'budgetConfig', 'totalIncome', 'debtPercent', 'debtCapacity',
-            'totalMonthlyPayments', 'availableCapacity', 'usedPercent',
+            'budgetConfig', 'totalIncome', 'fixedIncome', 'maxIncome', 'debtPercent', 
+            'debtCapacity', 'maxDebtCapacity',
+            'totalMonthlyPayments', 'availableCapacity', 'usedPercent', 'maxUsedPercent',
             'capacityTimeline'
         ));
     }

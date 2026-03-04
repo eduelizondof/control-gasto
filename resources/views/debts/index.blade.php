@@ -20,48 +20,75 @@
                         </div>
                         <div>
                             <h3 class="text-lg font-bold">Capacidad de Endeudamiento</h3>
-                            <p class="text-slate-400 text-xs">Basado en ingreso de ${{ number_format($totalIncome, 2) }} y {{ $debtPercent }}% para deudas</p>
+                            <p class="text-slate-400 text-xs">Basado en ingreso fijo de ${{ number_format($totalIncome, 2) }} y {{ $debtPercent }}% para deudas</p>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-5">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
                         <div class="bg-white/10 rounded-xl p-3 border border-white/5">
-                            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Capacidad Máxima</p>
-                            <p class="text-xl font-black">${{ number_format($debtCapacity, 2) }}</p>
-                            <p class="text-slate-500 text-[10px]">{{ $debtPercent }}% del ingreso</p>
+                            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Capacidad Sana (Fijo)</p>
+                            <p class="text-xl font-black">${{ number_format($debtCapacity, 0) }}</p>
+                            <p class="text-slate-500 text-[10px]">Basado en ${{ number_format($fixedIncome, 0) }}</p>
                         </div>
                         <div class="bg-white/10 rounded-xl p-3 border border-white/5">
-                            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Pagando Actualmente</p>
-                            <p class="text-xl font-black text-amber-400">${{ number_format($totalMonthlyPayments, 2) }}</p>
-                            <p class="text-slate-500 text-[10px]">mensual en deudas</p>
+                            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Empuje Máximo (+Bonos)</p>
+                            <p class="text-xl font-black text-emerald-400">${{ number_format($maxDebtCapacity, 0) }}</p>
+                            <p class="text-slate-500 text-[10px]">Basado en ${{ number_format($maxIncome, 0) }}</p>
                         </div>
                         <div class="bg-white/10 rounded-xl p-3 border border-white/5">
-                            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Capacidad Disponible</p>
-                            <p class="text-xl font-black {{ $availableCapacity >= 0 ? 'text-emerald-400' : 'text-rose-400' }}">
-                                ${{ number_format(abs($availableCapacity), 2) }}
-                            </p>
-                            <p class="text-slate-500 text-[10px]">{{ $availableCapacity >= 0 ? 'libre para nuevas deudas' : 'excedido' }}</p>
+                            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Pago Mensual Actual</p>
+                            <p class="text-xl font-black text-amber-400">${{ number_format($totalMonthlyPayments, 0) }}</p>
+                            <p class="text-slate-500 text-[10px]">Total en deudas activas</p>
                         </div>
                         <div class="bg-white/10 rounded-xl p-3 border border-white/5">
-                            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Uso de Capacidad</p>
-                            <p class="text-xl font-black {{ $usedPercent > 90 ? 'text-rose-400' : ($usedPercent > 70 ? 'text-amber-400' : 'text-emerald-400') }}">
-                                {{ $usedPercent }}%
-                            </p>
-                            <p class="text-slate-500 text-[10px]">de tu límite</p>
+                            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Estado General</p>
+                            @if($usedPercent <= 70)
+                                <p class="text-xl font-black text-emerald-400">Saludable</p>
+                            @elseif($usedPercent <= 100)
+                                <p class="text-xl font-black text-amber-400">Precaución</p>
+                            @else
+                                <p class="text-xl font-black text-rose-400">Al Límite</p>
+                            @endif
+                            <p class="text-slate-500 text-[10px]">Nivel de riesgo actual</p>
                         </div>
                     </div>
 
-                    {{-- Progress Bar --}}
-                    <div class="w-full bg-white/10 rounded-full h-3 overflow-hidden">
-                        @php
-                            $barColor = $usedPercent > 90 ? 'bg-rose-500' : ($usedPercent > 70 ? 'bg-amber-500' : 'bg-emerald-500');
-                        @endphp
-                        <div class="h-3 {{ $barColor }} rounded-full transition-all duration-500" style="width: {{ min($usedPercent, 100) }}%"></div>
-                    </div>
-                    <div class="flex justify-between text-[10px] text-slate-500 mt-1">
-                        <span>0%</span>
-                        <span>{{ $usedPercent }}% utilizado</span>
-                        <span>100%</span>
+                    {{-- Double Progress Bar --}}
+                    <div class="space-y-6">
+                        {{-- First Bar: To Fixed Limit --}}
+                        <div>
+                            <div class="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+                                <span>Uso vs Límite Sano (Ingreso Fijo)</span>
+                                <span class="{{ $usedPercent > 100 ? 'text-rose-400' : ($usedPercent > 80 ? 'text-amber-400' : 'text-slate-300') }}">
+                                    ${{ number_format($totalMonthlyPayments, 0) }} / ${{ number_format($debtCapacity, 0) }} ({{ $usedPercent }}%)
+                                </span>
+                            </div>
+                            <div class="w-full bg-white/10 rounded-full h-3 overflow-hidden relative">
+                                @php
+                                    $fixedBarColor = $usedPercent > 100 ? 'bg-rose-500' : ($usedPercent > 80 ? 'bg-amber-500' : 'bg-indigo-500');
+                                @endphp
+                                <div class="h-3 {{ $fixedBarColor }} rounded-full transition-all duration-500 relative z-10" style="width: {{ min($usedPercent, 100) }}%"></div>
+                                @if($usedPercent > 100)
+                                    <div class="absolute inset-0 bg-rose-500/20 animate-pulse"></div>
+                                @endif
+                            </div>
+                        </div>
+
+                        {{-- Second Bar: To Max Limit --}}
+                        @if($maxDebtCapacity > $debtCapacity)
+                        <div>
+                            <div class="flex justify-between text-[10px] font-bold uppercase tracking-widest text-emerald-500/80 mb-2">
+                                <span>Uso vs Empuje Máximo (Incl. Ingresos Esporádicos)</span>
+                                <span>{{ $maxUsedPercent }}% del tope absoluto</span>
+                            </div>
+                            <div class="w-full bg-white/10 rounded-full h-2 overflow-hidden">
+                                <div class="h-2 bg-emerald-500/60 rounded-full transition-all duration-500" style="width: {{ min($maxUsedPercent, 100) }}%"></div>
+                            </div>
+                            <p class="text-[9px] text-slate-500 mt-2 italic text-center">
+                                El límite sano se basa en ingresos garantizados. El empuje máximo considera bonos y ahorros que solo llegan en fechas específicas.
+                            </p>
+                        </div>
+                        @endif
                     </div>
                 </div>
 
