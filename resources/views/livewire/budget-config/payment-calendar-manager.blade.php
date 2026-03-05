@@ -27,25 +27,44 @@
                         </div>
                         <div class="flex items-center gap-2">
                             <button wire:click="editPerson('{{ $person }}')"
-                                class="px-3 py-1.5 text-xs font-bold text-indigo-600 bg-transparent border border-indigo-200 rounded-lg hover:bg-indigo-50 hover:border-indigo-300 transition-colors">
-                                Editar
+                                class="px-2 py-1.5 text-xs font-bold text-indigo-600 bg-transparent border border-indigo-200 rounded-lg hover:bg-indigo-50 hover:border-indigo-300 transition-colors"
+                                title="Editar">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                    </path>
+                                </svg>
+                            </button>
+                            <button wire:click="duplicatePerson('{{ $person }}')"
+                                class="px-2 py-1.5 text-xs font-bold text-emerald-600 bg-transparent border border-emerald-200 rounded-lg hover:bg-emerald-50 hover:border-emerald-300 transition-colors"
+                                title="Duplicar">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2">
+                                    </path>
+                                </svg>
                             </button>
                             <button type="button" x-data x-on:click="Swal.fire({
-                                                        title: '¿Eliminar calendario?',
-                                                        text: '¿Seguro que deseas eliminar todas las quincenas de {{ $person }}?',
-                                                        icon: 'warning',
-                                                        showCancelButton: true,
-                                                        confirmButtonColor: '#ef4444',
-                                                        cancelButtonColor: '#6b7280',
-                                                        confirmButtonText: 'Sí, eliminar',
-                                                        cancelButtonText: 'Cancelar'
-                                                    }).then((result) => {
-                                                        if(result.isConfirmed) {
-                                                            $wire.deletePerson('{{ $person }}');
-                                                        }
-                                                    })"
-                                class="px-3 py-1.5 text-xs font-bold text-rose-600 bg-transparent border border-rose-200 rounded-lg hover:bg-rose-50 hover:border-rose-300 transition-colors">
-                                Eliminar
+                                                                    title: '¿Eliminar calendario?',
+                                                                    text: '¿Seguro que deseas eliminar todas las quincenas de {{ $person }}?',
+                                                                    icon: 'warning',
+                                                                    showCancelButton: true,
+                                                                    confirmButtonColor: '#ef4444',
+                                                                    cancelButtonColor: '#6b7280',
+                                                                    confirmButtonText: 'Sí, eliminar',
+                                                                    cancelButtonText: 'Cancelar'
+                                                                }).then((result) => {
+                                                                    if(result.isConfirmed) {
+                                                                        $wire.deletePerson('{{ $person }}');
+                                                                    }
+                                                                })"
+                                class="px-2 py-1.5 text-xs font-bold text-rose-600 bg-transparent border border-rose-200 rounded-lg hover:bg-rose-50 hover:border-rose-300 transition-colors"
+                                title="Eliminar">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                    </path>
+                                </svg>
                             </button>
                         </div>
                     </div>
@@ -67,62 +86,7 @@
                     {{ $editingPerson ? 'Editar: ' . $editingPerson : 'Registrar Nuevo Calendario' }}
                 </h4>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6" x-data="{
-                         categoryId: @entangle('categoryId'),
-                         conceptId: @entangle('conceptId'),
-                         concepts: @js($this->concepts->map(fn($c) => ['id' => $c->id, 'name' => $c->name, 'category_id' => $c->category_id])),
-                         init() {
-                             const catSelect = $('#calendar_category_id');
-                             const conSelect = $('#calendar_concept_id');
-
-                             setTimeout(() => {
-                                 catSelect.select2({ placeholder: 'Selecciona...', width: '100%' });
-                                 conSelect.select2({ placeholder: 'Ninguno...', width: '100%', allowClear: true });
-
-                                 catSelect.on('change', (e) => {
-                                     this.categoryId = e.target.value;
-                                     this.filterConcepts(e.target.value);
-                                 });
-
-                                 conSelect.on('change', (e) => {
-                                     this.conceptId = e.target.value;
-                                 });
-
-                                 this.$watch('categoryId', (value) => {
-                                     if(catSelect.val() != value) {
-                                         catSelect.val(value).trigger('change.select2');
-                                         this.filterConcepts(value);
-                                     }
-                                 });
-
-                                 this.$watch('conceptId', (value) => {
-                                     if(conSelect.val() != value) {
-                                         conSelect.val(value).trigger('change.select2');
-                                     }
-                                 });
-                                 
-                                 this.filterConcepts(this.categoryId);
-                             }, 100);
-                         },
-                         filterConcepts(catId) {
-                             const conSelect = $('#calendar_concept_id');
-                             const currentConcept = this.conceptId;
-
-                             conSelect.empty().append('<option value=\" \">Ninguno...</option>');
-
-                    if (catId) {
-                    const filtered = this.concepts.filter(c => c.category_id == catId);
-                    filtered.forEach(c => {
-                    conSelect.append(new Option(c.name, c.id, false, false));
-                    });
-                    }
-
-                    if (currentConcept) {
-                    conSelect.val(currentConcept);
-                    }
-                    conSelect.trigger('change.select2');
-                    }
-                    }">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6" x-data="paymentCalendarManager">
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre (Usuario del Grupo)</label>
                         <select wire:model.defer="personName"
@@ -303,4 +267,70 @@
     @push('scripts')
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.data('paymentCalendarManager', () => ({
+                    categoryId: @entangle('categoryId'),
+                    conceptId: @entangle('conceptId'),
+                    allConcepts: @json($this->concepts->map(fn($c) => ['id' => $c->id, 'name' => $c->name, 'category_id' => $c->category_id])),
+
+                    init() {
+                        let catSelect = $('#calendar_category_id');
+                        let conSelect = $('#calendar_concept_id');
+
+                        // Initialize Select2
+                        catSelect.select2({ placeholder: 'Selecciona...', width: '100%' });
+                        conSelect.select2({ placeholder: 'Ninguno...', width: '100%', allowClear: true });
+
+                        // Handle Changes
+                        catSelect.on('change', (e) => {
+                            this.categoryId = e.target.value;
+                            this.filterConcepts(e.target.value);
+                        });
+
+                        conSelect.on('change', (e) => {
+                            this.conceptId = e.target.value;
+                        });
+
+                        // Watches
+                        this.$watch('categoryId', (value) => {
+                            if (catSelect.val() != value) {
+                                catSelect.val(value).trigger('change.select2');
+                                this.filterConcepts(value);
+                            }
+                        });
+
+                        this.$watch('conceptId', (value) => {
+                            if (conSelect.val() != value) {
+                                conSelect.val(value).trigger('change.select2');
+                            }
+                        });
+
+                        // Initial filter
+                        if (this.categoryId) {
+                            this.filterConcepts(this.categoryId);
+                        }
+                    },
+
+                    filterConcepts(catId) {
+                        let conSelect = $('#calendar_concept_id');
+                        let current = this.conceptId;
+
+                        conSelect.empty().append(new Option('Ninguno...', '', false, false));
+
+                        if (catId) {
+                            const filtered = this.allConcepts.filter(c => c.category_id == catId);
+                            filtered.forEach(c => {
+                                conSelect.append(new Option(c.name, c.id, false, false));
+                            });
+                        }
+
+                        if (current) {
+                            conSelect.val(current);
+                        }
+                        conSelect.trigger('change.select2');
+                    }
+                }));
+            });
+        </script>
     @endpush

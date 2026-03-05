@@ -165,6 +165,31 @@ class PaymentCalendarManager extends Component
         session()->flash('success', 'Calendario de pagos eliminado para ' . $personName);
     }
 
+    public function duplicatePerson($personName)
+    {
+        $this->resetForm();
+        
+        $entries = PaymentCalendar::where('group_id', $this->group->id)
+            ->where('person_name', $personName)
+            ->get();
+
+        if ($entries->isNotEmpty()) {
+            $this->accountId = $entries->first()->account_id;
+            $this->categoryId = $entries->first()->category_id;
+            $this->conceptId = $entries->first()->concept_id;
+
+            $this->calendarEntries = $entries->map(function ($entry) {
+                return [
+                    'payment_date' => $entry->payment_date->format('Y-m-d'),
+                    'amount' => $entry->amount,
+                    'concept' => $entry->concept,
+                ];
+            })->toArray();
+            
+            $this->personName = ''; // Force user to choose or type the name of the other person
+        }
+    }
+
     public function resetForm()
     {
         $this->personName = '';
