@@ -13,6 +13,10 @@
                     x-data="{ submitting: false }" @submit="submitting = true">
                     @csrf
                     @if(isset($transaction) && $transaction->exists) @method('PUT') @endif
+                    
+                    @if(request()->filled('payment_calendar_id'))
+                        <input type="hidden" name="payment_calendar_id" value="{{ request('payment_calendar_id') }}">
+                    @endif
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>

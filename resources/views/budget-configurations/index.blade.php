@@ -267,7 +267,14 @@
                 </div>
 
                 <!-- Bonos Esperados Component -->
-                <livewire:budget-config.expected-bonuses :group="$group" />
+                <div class="lg:col-span-3">
+                    <livewire:budget-config.expected-bonuses :group="$group" />
+                </div>
+
+                <!-- Calendario de Pagos Component -->
+                <div class="lg:col-span-3">
+                    <livewire:budget-config.payment-calendar-manager :group="$group" />
+                </div>
             </div>
         </div>
     </div>

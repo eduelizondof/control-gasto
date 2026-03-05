@@ -29,8 +29,11 @@
                     <livewire:dashboard.budget-overview :group="$group" />
                 </div>
 
-                <!-- Big Payments & Bonuses -->
-                <livewire:dashboard.upcoming-big-payments :group="$group" />
+                <!-- Big Payments, Bonuses & Payment Calendar -->
+                <div class="space-y-6 flex flex-col h-full">
+                    <livewire:dashboard.upcoming-big-payments :group="$group" />
+                    <livewire:dashboard.upcoming-payment-calendar :group="$group" />
+                </div>
             </div>
 
             <!-- Accounts -->

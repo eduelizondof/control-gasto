@@ -91,6 +91,22 @@ class TransactionController extends Controller
             }
         }
 
+        if ($request->filled('payment_calendar_id')) {
+            $calendar = \App\Models\PaymentCalendar::where('group_id', $group->id)->find($request->payment_calendar_id);
+            if ($calendar) {
+                $transaction = new Transaction([
+                    'type' => 'income',
+                    'amount' => $calendar->amount,
+                    'description' => $calendar->concept,
+                    'category_id' => $calendar->category_id,
+                    'concept_id' => $calendar->concept_id,
+                    'source_account_id' => $calendar->account_id,
+                    'date' => $calendar->payment_date,
+                    'time' => now()->format('H:i'),
+                ]);
+            }
+        }
+
         $categories = $group->categories()->orderBy('type')->orderBy('name')->get();
         $accounts = $group->accounts()->active()->orderBy('name')->get();
         $concepts = $group->concepts()->orderBy('name')->get();
@@ -123,7 +139,14 @@ class TransactionController extends Controller
         $validated['status'] = 'confirmed';
         $validated['source'] = 'manual';
 
-        $this->transactionService->create($validated);
+        $transaction = $this->transactionService->create($validated);
+
+        if ($request->filled('payment_calendar_id')) {
+            $calendar = \App\Models\PaymentCalendar::where('group_id', $group->id)->find($request->payment_calendar_id);
+            if ($calendar) {
+                $calendar->update(['transaction_id' => $transaction->id]);
+            }
+        }
 
         // Define friendly name for notification
         $typeLabel = match ($validated['type']) {
