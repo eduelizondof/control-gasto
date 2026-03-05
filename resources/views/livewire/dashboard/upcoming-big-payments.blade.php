@@ -15,7 +15,8 @@
             <h4 class="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-2">Bonos Esperados</h4>
             <div class="space-y-2">
                 @forelse($bonuses as $bonus)
-                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-emerald-50 border border-emerald-100">
+                    <a href="{{ route('transactions.create', ['group' => $group, 'type' => 'income', 'amount' => $bonus->amount, 'description' => 'Bono ' . $bonus->name]) }}"
+                        class="flex items-center justify-between p-2.5 rounded-xl bg-emerald-50 border border-emerald-100 hover:bg-emerald-100 transition-colors cursor-pointer group">
                         <div class="min-w-0">
                             <div class="font-bold text-emerald-800 text-sm truncate">{{ $bonus->name }}</div>
                             <div class="text-emerald-700/80 text-xs font-medium">
@@ -26,7 +27,7 @@
                         <span class="font-bold text-emerald-600 text-md shrink-0 ml-2">
                             +${{ number_format($bonus->amount, 2) }}
                         </span>
-                    </div>
+                    </a>
                 @empty
                     <p class="text-gray-400 text-xs py-2">No hay bonos registrados.</p>
                 @endforelse
@@ -38,7 +39,8 @@
             <h4 class="text-xs font-bold text-amber-600 uppercase tracking-wider mb-2">Próximos Pagos</h4>
             <div class="space-y-2">
                 @forelse($payments as $payment)
-                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-amber-50 border border-amber-100">
+                    <a href="{{ route('transactions.create', ['group' => $group, 'type' => 'expense', 'amount' => $payment->estimated_amount, 'category_id' => $payment->category_id, 'concept_id' => $payment->concept_id, 'description' => $payment->name]) }}"
+                        class="flex items-center justify-between p-2.5 rounded-xl bg-amber-50 border border-amber-100 hover:bg-amber-100 transition-colors cursor-pointer group">
                         <div class="min-w-0">
                             <div class="font-bold text-amber-800 text-sm truncate">{{ $payment->name }}</div>
                             <div class="text-amber-700/80 text-xs font-medium">
@@ -48,7 +50,7 @@
                         <span class="font-bold text-rose-600 text-md shrink-0 ml-2">
                             -${{ number_format($payment->estimated_amount, 2) }}
                         </span>
-                    </div>
+                    </a>
                 @empty
                     <p class="text-gray-400 text-xs py-2">No hay pagos próximos.</p>
                 @endforelse

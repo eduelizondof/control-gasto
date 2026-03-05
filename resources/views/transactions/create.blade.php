@@ -21,7 +21,7 @@
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                 required>
                                 @foreach(['income' => 'Ingreso', 'expense' => 'Gasto', 'transfer' => 'Transferencia', 'savings' => 'Ahorro', 'adjustment' => 'Ajuste'] as $val => $label)
-                                    <option value="{{ $val }}" {{ old('type', $transaction->type ?? 'expense') === $val ? 'selected' : '' }}>{{ $label }}</option>
+                                    <option value="{{ $val }}" {{ old('type', $transaction->type ?? request('type', 'expense')) === $val ? 'selected' : '' }}>{{ $label }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -29,7 +29,7 @@
                         <div>
                             <x-input-label for="amount" value="Monto" />
                             <x-text-input id="amount" name="amount" type="number" step="0.01" min="0.01"
-                                class="mt-1 block w-full" :value="old('amount', $transaction->amount ?? '')" required
+                                class="mt-1 block w-full" :value="old('amount', $transaction->amount ?? request('amount', ''))" required
                                 placeholder="0.00" />
                             <x-input-error :messages="$errors->get('amount')" class="mt-2" />
                         </div>
@@ -57,7 +57,7 @@
                                     @if(isset($grouped[$type]))
                                         <optgroup label="{{ $label }}">
                                             @foreach($grouped[$type] as $cat)
-                                                <option value="{{ $cat->id }}" {{ old('category_id', $transaction->category_id ?? '') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
+                                                <option value="{{ $cat->id }}" {{ old('category_id', $transaction->category_id ?? request('category_id')) == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
                                             @endforeach
                                         </optgroup>
                                     @endif
@@ -71,7 +71,7 @@
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                 <option value="">Sin concepto</option>
                                 @foreach($concepts as $concept)
-                                    <option value="{{ $concept->id }}" {{ old('concept_id', $transaction->concept_id ?? '') == $concept->id ? 'selected' : '' }}>{{ $concept->name }}</option>
+                                    <option value="{{ $concept->id }}" {{ old('concept_id', $transaction->concept_id ?? request('concept_id')) == $concept->id ? 'selected' : '' }}>{{ $concept->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -105,7 +105,7 @@
                         <div class="md:col-span-2">
                             <x-input-label for="description" value="Descripción" />
                             <x-text-input id="description" name="description" type="text" class="mt-1 block w-full"
-                                :value="old('description', $transaction->description ?? '')"
+                                :value="old('description', $transaction->description ?? request('description', ''))"
                                 placeholder="Ej: Compra en Walmart" />
                         </div>
 

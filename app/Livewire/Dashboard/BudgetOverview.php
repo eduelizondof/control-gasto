@@ -81,6 +81,8 @@ class BudgetOverview extends Component
                 $budgetBreakdown->push((object) [
                     'name' => $name,
                     'category' => $item->category,
+                    'category_id' => $item->category_id,
+                    'concept_id' => $item->concept_id,
                     'budgeted' => $budgeted,
                     'spent' => $spent,
                     'diff' => $diff,
@@ -96,6 +98,8 @@ class BudgetOverview extends Component
                 $outOfBudgetBreakdown->push((object) [
                     'name' => $concept->name ?? 'Concepto Desconocido',
                     'category' => $concept->category ?? null,
+                    'category_id' => $concept->category_id ?? null,
+                    'concept_id' => $conceptId,
                     'spent' => $spent,
                 ]);
             }
@@ -108,6 +112,8 @@ class BudgetOverview extends Component
                 $outOfBudgetBreakdown->push((object) [
                     'name' => 'General de '.($category->name ?? 'Categoría'),
                     'category' => $category,
+                    'category_id' => $categoryId,
+                    'concept_id' => null,
                     'spent' => $spent,
                 ]);
             }
