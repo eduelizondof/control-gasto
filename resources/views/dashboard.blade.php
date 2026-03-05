@@ -2,10 +2,11 @@
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <div>
-                <h2 class="text-2xl font-bold text-gray-800 leading-tight">Panel de Control</h2>
-                <p class="text-sm text-gray-500 mt-1">{{ $group->name }} —
-                    {{ \Carbon\Carbon::now()->translatedFormat('F Y') }}
-                </p>
+                <h2 class="text-2xl font-bold text-gray-800 leading-tight">
+                    {{ $group->name }} — <span
+                        class="capitalize">{{ \Carbon\Carbon::now()->translatedFormat('F Y') }}</span>
+                </h2>
+                <p class="text-sm text-gray-500 mt-1">Panel de Control</p>
             </div>
             <a href="{{ route('transactions.create', $group) }}"
                 class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition shadow-sm">

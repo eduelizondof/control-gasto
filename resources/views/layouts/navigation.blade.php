@@ -114,15 +114,21 @@
                             Movimientos
                         </a>
 
-                        <a href="{{ route('reminders.index', $group) }}"
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition
-                                                          {{ request()->routeIs('reminders.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50' }}">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                            </svg>
-                            Recordatorios
-                        </a>
+                        <button @click="notificationsOpen = true; menuOpen = false"
+                            class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition text-gray-700 hover:bg-gray-50">
+                            <div class="flex items-center gap-3">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                </svg>
+                                Notificaciones
+                            </div>
+                            @if($unreadCount > 0)
+                                <span id="notif-badge" class="bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                    {{ $unreadCount }}
+                                </span>
+                            @endif
+                        </button>
 
                         <a href="{{ route('categories.index', $group) }}"
                             class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition
@@ -386,23 +392,26 @@
                 </div>
             @endif
 
-            {{-- 4. Notificaciones --}}
-            <button @click="notificationsOpen = !notificationsOpen; menuOpen = false"
-                class="relative flex flex-col items-center justify-center gap-0.5 px-2 py-1 rounded-xl transition"
-                :class="notificationsOpen ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600'">
-                <div class="relative">
+            {{-- 4. Recordatorios --}}
+            @if($group)
+                <a href="{{ route('reminders.index', $group) }}"
+                    class="flex flex-col items-center justify-center gap-0.5 px-1 py-1 rounded-xl transition
+                                                  {{ request()->routeIs('reminders.*') ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600' }}">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    @if($unreadCount > 0)
-                        <span id="notif-badge" class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white shadow-sm ring-2 ring-white">
-                            {{ $unreadCount > 9 ? '9+' : $unreadCount }}
-                        </span>
-                    @endif
+                    <span class="text-[10px] font-semibold leading-tight">Recordatorios</span>
+                </a>
+            @else
+                <div class="flex flex-col items-center justify-center gap-0.5 px-1 py-1 text-gray-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span class="text-[10px] font-semibold leading-tight">Recordatorios</span>
                 </div>
-                <span class="text-[10px] font-semibold leading-tight">Alertas</span>
-            </button>
+            @endif
 
             {{-- 5. Menú --}}
             <button @click="menuOpen = !menuOpen; notificationsOpen = false"
