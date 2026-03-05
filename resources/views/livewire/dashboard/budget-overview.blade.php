@@ -1,5 +1,5 @@
-<div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-    <h3 class="text-lg font-bold text-gray-800 mb-4">Presupuesto vs Gasto Real</h3>
+<div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col h-full">
+    <h3 class="text-lg font-bold text-gray-800 mb-4 shrink-0">Presupuesto vs Gasto Real</h3>
     @if($activeBudget)
         @php
             $budgetDiff = $budgetTotal - $budgetSpent;

@@ -37,8 +37,11 @@ class UpcomingBigPayments extends Component
         })->take(5);
 
         $currentMonth = now()->month;
+        $nextMonth = $currentMonth === 12 ? 1 : $currentMonth + 1;
+
         $bonuses = $this->group->expectedBonuses()
             ->where('is_active', true)
+            ->whereIn('month', [$currentMonth, $nextMonth])
             ->orderByRaw("CASE WHEN month >= {$currentMonth} THEN 0 ELSE 1 END")
             ->orderBy('month')
             ->orderBy('day')

@@ -23,20 +23,24 @@
             <!-- Summary Cards -->
             <livewire:dashboard.summary-cards :group="$group" />
 
+
+
             <!-- Budget vs Expenses + Upcoming Big Payments -->
-            <div class="grid lg:grid-cols-3 gap-6 mb-8">
+            <div class="grid lg:grid-cols-3 items-stretch gap-6 mb-8">
                 <!-- Budget Overview -->
-                <div class="lg:col-span-2 h-full">
+                <div class="lg:col-span-2">
                     <livewire:dashboard.budget-overview :group="$group" />
                 </div>
 
-                <!-- Big Payments, Bonuses & Payment Calendar -->
-                <div class="space-y-6 flex flex-col h-full">
+                <!-- Big Payments & Bonuses -->
+                <div class="">
                     <livewire:dashboard.upcoming-big-payments :group="$group" />
-                    <livewire:dashboard.upcoming-payment-calendar :group="$group" />
                 </div>
             </div>
-
+            <!-- Payment Calendar -->
+            <div class="mb-6">
+                <livewire:dashboard.upcoming-payment-calendar :group="$group" />
+            </div>
             <!-- Accounts -->
             <div class="mb-8 h-full">
                 <livewire:dashboard.account-list :group="$group" />
