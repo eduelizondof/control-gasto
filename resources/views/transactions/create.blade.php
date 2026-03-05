@@ -18,10 +18,10 @@
                         <input type="hidden" name="payment_calendar_id" value="{{ request('payment_calendar_id') }}">
                     @endif
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6" x-data="{ transactionType: '{{ old('type', $transaction->type ?? request('type', 'expense')) }}' }">
                         <div>
                             <x-input-label for="type" value="Tipo" />
-                            <select id="type" name="type"
+                            <select id="type" name="type" x-model="transactionType"
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                 required>
                                 @foreach(['income' => 'Ingreso', 'expense' => 'Gasto', 'transfer' => 'Transferencia', 'savings' => 'Ahorro', 'adjustment' => 'Ajuste'] as $val => $label)
@@ -35,6 +35,12 @@
                             <x-text-input id="amount" name="amount" type="number" step="0.01" min="0.01"
                                 class="mt-1 block w-full" :value="old('amount', $transaction->amount ?? request('amount', ''))" required
                                 placeholder="0.00" />
+                            <div x-show="transactionType === 'adjustment'" x-cloak class="mt-2 text-sm text-blue-700 bg-blue-50 p-2.5 rounded-lg border border-blue-100 flex items-start gap-2">
+                                <svg class="w-5 h-5 text-blue-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span>Al elegir <strong>Ajuste</strong>, el monto ingresado será el <strong>nuevo saldo</strong> de la cuenta seleccionada. Reemplazará al saldo actual.</span>
+                            </div>
                             <x-input-error :messages="$errors->get('amount')" class="mt-2" />
                         </div>
 

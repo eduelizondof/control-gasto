@@ -74,7 +74,7 @@
                                 $diffText = '-$' . number_format($entry->diff, 2);
                             }
                         @endphp
-                        <a href="{{ route('transactions.create', ['group' => $group, 'type' => 'expense', 'category_id' => $entry->category_id, 'concept_id' => $entry->concept_id]) }}"
+                        <a href="{{ route('transactions.create', ['group' => $group, 'type' => 'expense', 'amount' => $entry->diff > 0 ? number_format($entry->diff, 2, '.', '') : null, 'category_id' => $entry->category_id, 'concept_id' => $entry->concept_id]) }}"
                             class="block hover:bg-gray-50 p-1.5 -mx-1.5 rounded-lg transition-colors group">
                             <div class="flex items-center justify-between text-xs mb-1">
                                 <div class="flex items-center gap-1.5 min-w-0">
